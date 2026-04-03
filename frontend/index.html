@@ -16,7 +16,7 @@
     }
 })();
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <style>
@@ -63,7 +63,7 @@
     --success: #4ade80;
     --radius: 16px;
     --radius-sm: 10px;
-    --font: "Inter", system-ui, -apple-system, sans-serif;
+    --font: "Space Grotesk", "Inter", system-ui, -apple-system, sans-serif;
     --nav-h: 56px;
     color-scheme: dark;
 }
@@ -916,9 +916,32 @@ body {
 
 /* Hero */
 .hero-emergent {
+    position: relative;
     text-align: center;
-    padding: 3rem 0 4rem;
+    padding: 2.4rem 1.3rem 2rem;
+    margin: 0 auto 1rem;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) + 6px);
+    background:
+        radial-gradient(120% 160% at 8% 4%, rgba(34, 211, 238, 0.12) 0%, transparent 55%),
+        radial-gradient(100% 140% at 100% 0%, rgba(232, 121, 249, 0.1) 0%, transparent 50%),
+        var(--surface);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.34);
+    overflow: hidden;
     animation: heroIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hero-emergent::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.12;
+    mask-image: radial-gradient(circle at 50% 40%, black 20%, transparent 86%);
 }
 
 @keyframes heroIn {
@@ -936,8 +959,8 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    margin: 0 0 1.25rem;
-    padding: 0.35rem 0.85rem;
+    margin: 0 0 0.9rem;
+    padding: 0.36rem 0.85rem;
     font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.06em;
@@ -948,8 +971,41 @@ body {
     background: var(--surface-soft);
 }
 
+.hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0.15rem 0 1rem;
+}
+
+.hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.68rem;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 700;
+    border: 1px solid var(--border);
+    background: var(--surface-soft);
+    color: var(--muted);
+}
+
+.hero-chip.hot {
+    border-color: rgba(34, 211, 238, 0.42);
+    color: #67e8f9;
+}
+
+.hero-chip.live {
+    border-color: rgba(74, 222, 128, 0.42);
+    color: #86efac;
+}
+
 .hero-headline {
-    margin: 0;
+    margin: 0 0 0.3rem;
     line-height: 1.05;
     letter-spacing: -0.04em;
 }
@@ -985,12 +1041,43 @@ body {
 }
 
 .hero-lead {
-    margin: 1.5rem auto 0;
-    max-width: 36rem;
+    margin: 1.2rem auto 0;
+    max-width: 43rem;
     font-size: 1.05rem;
     line-height: 1.65;
     color: var(--muted);
     font-weight: 400;
+}
+
+.hero-metrics {
+    margin: 1.4rem auto 0;
+    width: min(740px, 100%);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+}
+
+.hero-metric {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-soft);
+    padding: 0.7rem 0.8rem;
+}
+
+.hero-metric strong {
+    display: block;
+    font-size: 1.15rem;
+    letter-spacing: -0.03em;
+    color: var(--text);
+}
+
+.hero-metric span {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.74rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .hero-actions {
@@ -1055,9 +1142,50 @@ body {
     box-shadow: 0 0 12px rgba(74, 222, 128, 0.6);
 }
 
+@media (max-width: 900px) {
+    .hero-metrics {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Section */
 .section-tools {
     padding-top: 1rem;
+}
+
+.tools-marquee {
+    margin: 0.2rem auto 1.1rem;
+    width: min(820px, 100%);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface-soft);
+    color: var(--muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.tools-marquee-track {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 0.45rem 1rem;
+    animation: marqueeSlide 18s linear infinite;
+}
+
+.tools-marquee strong {
+    color: var(--text);
+}
+
+@keyframes marqueeSlide {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
 }
 
 .section-heading {
@@ -1067,6 +1195,16 @@ body {
     letter-spacing: -0.03em;
     text-align: center;
     color: var(--text);
+}
+
+.section-heading::after {
+    content: "";
+    display: block;
+    width: 74px;
+    height: 3px;
+    margin: 0.6rem auto 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--cyan), var(--pink));
 }
 
 .section-lead {
@@ -1126,6 +1264,19 @@ body {
     transition: opacity 0.55s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s, box-shadow 0.25s;
     opacity: 0;
     transform: translateY(24px);
+    isolation: isolate;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(130deg, rgba(34, 211, 238, 0.12) 0%, transparent 38%, rgba(232, 121, 249, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: -1;
 }
 
 .card.in-view {
@@ -1134,8 +1285,13 @@ body {
 }
 
 .card:hover {
+    transform: translateY(-4px);
     border-color: var(--border-hover);
     box-shadow: var(--card-shadow);
+}
+
+.card:hover::before {
+    opacity: 1;
 }
 
 .card h2 {
@@ -1170,11 +1326,20 @@ body {
 .card-icon-w i {
     font-size: 1rem;
     color: #d4d4d8;
+    transition: transform 0.2s ease;
+}
+
+.card:hover .card-icon-w i {
+    transform: scale(1.08);
 }
 
 .card-title-text {
     flex: 1;
     text-align: left;
+}
+
+.card p {
+    min-height: 2.4em;
 }
 
 .card p,
@@ -1520,6 +1685,12 @@ input[type="password"]::placeholder {
     text-align: center;
     font-size: 0.78rem;
     color: var(--muted2);
+}
+
+@media (max-width: 900px) {
+    .tools-marquee {
+        font-size: 0.72rem;
+    }
 }
 
 .spinner {
@@ -2902,6 +3073,10 @@ button.loading {
 <div class="page-main">
 <section class="hero-emergent">
     <p class="hero-kicker">Andhra Pradesh · Rural toolkit</p>
+    <div class="hero-badges" aria-hidden="true">
+        <span class="hero-chip hot"><i class="fas fa-bolt"></i> Hackathon Demo</span>
+        <span class="hero-chip live"><span class="hero-stat-dot"></span> Live AI + Alerts</span>
+    </div>
     <h1 class="hero-headline">
         <span class="hero-line">Protect crops &amp; communities</span>
         <span class="hero-gradient">with AI &amp; real-time tools.</span>
@@ -2910,6 +3085,11 @@ button.loading {
     <div class="hero-actions">
         <a href="#tools" class="btn-hero-primary" data-i18n="heroExploreTools">Explore tools</a>
         <a href="#weather-section" class="btn-hero-secondary" data-i18n="heroCheckWeather">Check weather</a>
+    </div>
+    <div class="hero-metrics" aria-label="Project highlights">
+        <div class="hero-metric"><strong>4 Core Tools</strong><span>Disease, weather, dealers, dam safety</span></div>
+        <div class="hero-metric"><strong>Multilingual</strong><span>English, Telugu, Hindi support</span></div>
+        <div class="hero-metric"><strong>Emergency Ready</strong><span>Voice call and SMS alert workflows</span></div>
     </div>
     <div class="hero-stat">
         <span class="hero-stat-dot" aria-hidden="true"></span>
@@ -2920,6 +3100,18 @@ button.loading {
 <section id="tools" class="section-tools">
     <h2 class="section-heading" data-i18n="sectionHeading">What can Rural Guards do for you?</h2>
     <p class="section-lead" data-i18n="sectionLead">From field to coast — simple tools that run in your browser.</p>
+    <div class="tools-marquee" aria-hidden="true">
+        <div class="tools-marquee-track">
+            <span><strong>Live Demo</strong> · AI crop diagnosis</span>
+            <span><strong>Live Demo</strong> · emergency voice calling</span>
+            <span><strong>Live Demo</strong> · weather intelligence</span>
+            <span><strong>Live Demo</strong> · nearby dealers map</span>
+            <span><strong>Live Demo</strong> · AI crop diagnosis</span>
+            <span><strong>Live Demo</strong> · emergency voice calling</span>
+            <span><strong>Live Demo</strong> · weather intelligence</span>
+            <span><strong>Live Demo</strong> · nearby dealers map</span>
+        </div>
+    </div>
 
     <div class="bento-grid">
 

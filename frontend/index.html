@@ -2971,7 +2971,7 @@ button.loading {
         <h2><span class="card-icon-w"><i class="fas fa-cloud-sun"></i></span><span class="card-title-text" data-i18n="cardWeatherTitle">Weather Alert</span></h2>
         <p data-i18n="cardWeatherDesc">Uses your current location when you allow it in the browser; otherwise shows weather for Andhra Pradesh (default).</p>
         <button onclick="weatherAlert()"><i class="fas fa-eye"></i> <span data-i18n="checkWeatherTipsBtn">Check Weather &amp; Tips</span></button>
-        <button type="button" class="btn-outline" id="sendWeatherAlertBtn" onclick="sendWeatherAlertSMS()" hidden><i class="fas fa-paper-plane"></i> Send Weather Alert (SMS)</button>
+        <!-- Weather Alert SMS removed by request -->
         <p class="small-note" id="sendWeatherAlertHint">Visible only for signed-in dam officials.</p>
         <button type="button" class="btn-outline" onclick="refreshLocationNow()"><i class="fas fa-location-crosshairs"></i> <span>Refresh GPS</span></button>
         <div id="weather"></div>
@@ -4664,12 +4664,19 @@ function damAlert() {
 
 function damAlertSMS() {
     if (!ensureOfficialAccess()) return;
+    if (window.__alertInFlight && window.__alertInFlight.damSms) {
+        setDamStatus("Please wait: SMS alert is already in progress.", false);
+        return;
+    }
+    window.__alertInFlight = window.__alertInFlight || {};
+    window.__alertInFlight.damSms = true;
 
     const phones = getAlertPhoneNumbers();
     const location = (document.getElementById("damLocation").value || "the dam").trim() || "the dam";
     const language = getSelectedAlertLanguage();
 
     if (!phones.length) {
+        window.__alertInFlight.damSms = false;
         setDamStatus("Please enter at least one phone number to send SMS alert.", false);
         return;
     }
@@ -4713,96 +4720,13 @@ function damAlertSMS() {
 
         const failedPhones = failed.map(function (r) { return r.phone; }).join(", ");
         setDamStatus(`⚠️ SMS sent to ${successCount}/${phones.length}. Failed: ${failedPhones}`, false);
+    }).finally(function () {
+        window.__alertInFlight.damSms = false;
     });
 }
 
 async function sendWeatherAlertSMS() {
-    if (!ensureOfficialAccess()) return;
-
-    let phones = getAlertPhoneNumbers();
-    if (!phones.length) {
-        phones = getRegisteredUsers()
-            .map(function (user) { return normalizePhoneNumber(user.phone); })
-            .filter(Boolean);
-    }
-
-    if (!phones.length) {
-        setDamStatus("No recipients found. Add phone numbers in Dam Alert section first.", false);
-        return;
-    }
-
-    const weatherDiv = document.getElementById("weather");
-    if (weatherDiv) {
-        weatherDiv.classList.remove("error", "success");
-        weatherDiv.classList.add("loading");
-        weatherDiv.innerHTML = '<span class="loading-text"><span class="spinner"></span> Sending weather alert SMS...</span>';
-    }
-
-    const coords = await new Promise(function (resolve) {
-        if (!navigator.geolocation) {
-            resolve(null);
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(
-            function (pos) {
-                resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude });
-            },
-            function () {
-                resolve(null);
-            },
-            getHighAccuracyGeoOptions()
-        );
-    });
-
-    const payloadBase = coords ? { lat: coords.lat, lon: coords.lon } : {};
-
-    const results = await Promise.all(
-        phones.map(async function (phone) {
-            try {
-                const response = await fetch("/send-weather-alert-sms", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        phoneNumber: phone,
-                        ...payloadBase
-                    })
-                });
-                const data = await response.json();
-                return {
-                    ok: response.ok && data && data.success,
-                    phone,
-                    error: data && data.error ? data.error : null
-                };
-            } catch (error) {
-                return { ok: false, phone, error: error.message };
-            }
-        })
-    );
-
-    const successCount = results.filter(function (item) { return item.ok; }).length;
-    const failed = results.filter(function (item) { return !item.ok; });
-
-    if (weatherDiv) {
-        weatherDiv.classList.remove("loading");
-    }
-
-    if (!failed.length) {
-        if (weatherDiv) {
-            weatherDiv.classList.add("success");
-            weatherDiv.innerHTML = `<strong>✅ Weather alert sent</strong><br>SMS delivered to ${successCount} recipient(s).`;
-        }
-        setDamStatus(`✅ Weather alert SMS sent to all ${successCount} recipient(s).`, true);
-        return;
-    }
-
-    const failedPhones = failed.map(function (item) { return item.phone; }).join(", ");
-    if (weatherDiv) {
-        weatherDiv.classList.add("error");
-        weatherDiv.innerHTML = `<strong>⚠️ Partial delivery</strong><br>Sent to ${successCount}/${phones.length}. Failed: ${failedPhones}`;
-    }
-    setDamStatus(`⚠️ Weather alert SMS sent to ${successCount}/${phones.length}. Failed: ${failedPhones}`, false);
+    setDamStatus("Weather alert SMS has been removed from this build.", false);
 }
 
 let damWatcherId = null;
@@ -4962,9 +4886,11 @@ function normalizePhoneNumber(rawPhone) {
     const cleaned = String(rawPhone || "").replace(/[\s()-]/g, "");
     if (!cleaned) return "";
     if (cleaned.startsWith("+")) return cleaned;
+    if (cleaned.startsWith("00")) return `+${cleaned.slice(2).replace(/\D/g, "")}`;
+
     const digitsOnly = cleaned.replace(/\D/g, "");
-    if (digitsOnly.length === 10) return `+91${digitsOnly}`;
-    if (digitsOnly.length === 12 && digitsOnly.startsWith("91")) return `+${digitsOnly}`;
+    if (!digitsOnly) return "";
+    if (digitsOnly.length >= 8 && digitsOnly.length <= 15) return `+${digitsOnly}`;
     return `+${digitsOnly}`;
 }
 
@@ -4995,7 +4921,7 @@ function applyDefaultPhonePrefix() {
     const phoneInputs = document.querySelectorAll('.alert-phone, .phone-normalize');
     phoneInputs.forEach(function (phoneInput) {
         if (!phoneInput.value || !phoneInput.value.trim()) {
-            phoneInput.value = '+91';
+            phoneInput.value = '+';
         }
         phoneInput.addEventListener('blur', function () {
             phoneInput.value = normalizePhoneNumber(phoneInput.value);
@@ -5792,25 +5718,24 @@ async function damAlert() {
     const language = getSelectedAlertLanguage();
 
     if (!phones.length) {
-        setDamStatus("Please enter at least one phone number to send dam call + SMS alert.", false);
+        setDamStatus("Please enter at least one phone number to send dam voice call alert.", false);
         return;
     }
 
-    setDamStatus(`🚨 Sending dam alert to ${phones.length} recipient(s)...`, true);
+    setDamStatus(`📞 Initiating dam voice calls to ${phones.length} recipient(s)...`, true);
 
     const results = await Promise.all(
         phones.map(async function (phone) {
             try {
-                const response = await fetch('/send-alert', {
+                const response = await fetch('/make-call', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        phone,
-                        type: 'dam',
-                        language,
-                        damName: location
+                        phoneNumber: phone,
+                        damName: location,
+                        language
                     })
                 });
                 const data = await response.json();
@@ -5829,111 +5754,10 @@ async function damAlert() {
     const failed = results.filter(function (r) { return !r.ok; });
 
     if (!failed.length) {
-        setDamStatus(`✅ Dam alert sent to all ${successCount} recipients.`, true);
+        setDamStatus(`✅ Voice calls initiated for all ${successCount} recipient(s).`, true);
     } else {
         const failedPhones = failed.map(function (r) { return r.phone; }).join(", ");
-        setDamStatus(`⚠️ Alerts sent to ${successCount}/${phones.length}. Failed: ${failedPhones}`, false);
-    }
-
-    const select = document.getElementById('voiceSelect');
-    const voices = speechSynthesis.getVoices();
-    let voice = null;
-
-    if (select.value === 'google-telugu') {
-        // Force Google TTS for Telugu
-        playTeluguWithGoogle(`${location} వ�్డ డ్యామ్ నీరు విడుదల అవుతున్నది. దయచేసి త్వరగా భద్రత స్థలానికి తరలించండి.`, location);
-        return;
-    }
-
-    if (select.value) {
-        voice = voices.find(v => v.name === select.value);
-    }
-
-    if (!voice) {
-        voice = voices.find(v => v.lang === 'te-IN' || v.lang.startsWith('te')) ||
-                voices.find(v => v.lang === 'hi-IN') ||
-                voices.find(v => v.lang === 'en-IN') ||
-                voices.find(v => v.lang.startsWith('en'));
-    }
-
-    // If auto-detect and no Telugu voice found, use Google TTS
-    if (!select.value && !voice) {
-        playTeluguWithGoogle(`${location} వ�్డ డ్యామ్ నీరు విడుదల అవుతున్నది. దయచేసి త్వరగా భద్రత స్థలానికి తరలించండి.`, location);
-        return;
-    }
-
-    // Generate alert text based on selected voice language
-    let alertText = '';
-    let subtitleText = '';
-    let langCode = voice ? voice.lang : 'en-US';
-
-    if (langCode.startsWith('te')) {
-        // Telugu
-        alertText = `${location} వ�్డ డ్యామ్ నీరు విడుదల అవుతున్నది. దయచేసి త్వరగా భద్రత స్థలానికి తరలించండి.`;
-        subtitleText = `డ్యామ్ అలర్ట్: ${location} వద్ద నీరు విడుదల అవుతుంది.`;
-    } else if (langCode.startsWith('hi')) {
-        // Hindi
-        alertText = `${location} बांध में पानी छोड़ा जा रहा है। कृपया तुरंत सुरक्षित स्थान पर चले जाएं।`;
-        subtitleText = `बांध अलर्ट: ${location} पर पानी रिलीज हो रहा है।`;
-    } else if (langCode.startsWith('ta')) {
-        // Tamil
-        alertText = `${location} அணையில் தண்ணீர் விட்டிருக்கிறது. தயவுசெய்து உடனடியாக பாதுகாப்படிடுங்கள்.`;
-        subtitleText = `அணைக்경고: ${location} பாறிக் மையில் தண்ணீர் வெளியிடப்பட்டுள்ளது.`;
-    } else if (langCode.startsWith('kn')) {
-        // Kannada
-        alertText = `${location} ಅಣೆಯಲ್ಲಿ ನೀರು ಬಿಡಲಾಗುತ್ತಿದೆ. ದಯವಿಟ್ಟು ತಕ್ಷಣವೇ ಸುರಕ್ಷಿತ ಸ್ಥಳಕ್ಕೆ ಸರಿಸಿ.`;
-        subtitleText = `ಅಣೆ ಎಚ್ಚರಿಕೆ: ${location} ನಲ್ಲಿ ನೀರು ಬಿಡಲಾಗುತ್ತಿದೆ.`;
-    } else if (langCode.startsWith('ml')) {
-        // Malayalam
-        alertText = `${location} അണനിലെ വെള്ളം വിടിക്കുന്നുണ്ട്. ദയവായി ഉടനെ സുരക്ഷിത സ്ഥലത്തേക്ക് പോകുക.`;
-        subtitleText = `അണ അലേർട്ട് : ${location} ൽ നീര് വിടുകയാണ് .`;
-    } else {
-        // Default English
-        alertText = `Attention everyone: ${location} dam is releasing water now. Please move to safety immediately.`;
-        subtitleText = `Dam Alert: ${location} is releasing water now.`;
-    }
-
-    // Check if Telugu was requested (either selected or auto-detect with no Telugu voice)
-    const teluguRequested = select.value === 'google-telugu' || (!select.value && !voice) || (voice && voice.lang.startsWith('te'));
-    const teluguVoiceAvailable = voice && voice.lang.startsWith('te');
-
-    if (teluguRequested) {
-        if (teluguVoiceAvailable) {
-            // Use native Telugu voice
-            let msg = new SpeechSynthesisUtterance(`${location} వ�్డ డ్యామ్ నీరు విడుదల అవుతున్నది. దయచేసి త్వరగా భద్రత స్థలానికి తరలించండి.`);
-            msg.rate = 0.95;
-            msg.pitch = 1.05;
-            msg.voice = voice;
-            msg.lang = voice.lang;
-            setDamStatus(`Voice alert playing with: ${voice.name} (${voice.lang}).`, true);
-            speechSynthesis.speak(msg);
-        } else {
-            // Use Google TTS or Web Speech API for Telugu speech
-            playTeluguWithGoogle(`${location} వ�్డ డ్యామ్ నీరు విడుదల అవుతున్నది. దయచేసి త్వరగా భద్రత స్థలానికి తరలించండి.`, location);
-        }
-    } else {
-        // Use local voice for Hindi/English
-        let alertText = '';
-        if (voice && voice.lang.startsWith('hi')) {
-            alertText = `${location} बांध में पानी छोड़ा जा रहा है। कृपया तुरंत सुरक्षित स्थान पर चले जाएं।`;
-        } else {
-            alertText = `Attention everyone: ${location} dam is releasing water now. Please move to safety immediately.`;
-        }
-
-        let msg = new SpeechSynthesisUtterance(alertText);
-        msg.rate = 0.95;
-        msg.pitch = 1.05;
-
-        if (voice) {
-            msg.voice = voice;
-            msg.lang = voice.lang;
-            setDamStatus(`Voice alert playing with: ${voice.name} (${voice.lang}).`, true);
-        } else {
-            msg.lang = 'en-US';
-            setDamStatus('No speech voices available in browser; using default English message.', false);
-        }
-
-        speechSynthesis.speak(msg);
+        setDamStatus(`⚠️ Calls initiated for ${successCount}/${phones.length}. Failed: ${failedPhones}`, false);
     }
 }
 </script>

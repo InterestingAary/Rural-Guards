@@ -280,22 +280,6 @@ If the user asks outside available tools, clearly suggest the nearest Rural Guar
     }
 }
 
-function buildWeatherSmsMessage(payload) {
-    const location = payload && payload.location ? payload.location : "your area";
-    const condition = payload && (payload.summary || payload.description) ? (payload.summary || payload.description) : "variable conditions";
-    const temp = Number(payload && payload.temperature);
-    const humidity = Number(payload && payload.humidity);
-    const wind = Number(payload && payload.windSpeed);
-    const advice = getWeatherAdviceLines(payload, 2);
-
-    let message = `Weather Alert (${location}): ${condition}.`;
-    if (Number.isFinite(temp)) message += ` Temp ${temp}C.`;
-    if (Number.isFinite(humidity)) message += ` Humidity ${humidity}%.`;
-    if (Number.isFinite(wind)) message += ` Wind ${wind} km/h.`;
-    if (advice.length) message += ` Advice: ${advice.join(" ")}`;
-    return message;
-}
-
 const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || "";
@@ -761,51 +745,6 @@ app.post("/send-sms", async (req, res) => {
         res.status(500).json({
             success: false,
             error: "Failed to send SMS: " + error.message
-        });
-    }
-});
-
-app.post("/send-weather-alert-sms", async (req, res) => {
-    console.log("🌦️ Weather SMS Alert Request:", req.body);
-
-    if (!twilioClient) {
-        console.log("❌ Twilio not configured");
-        return res.status(500).json({
-            success: false,
-            error: "Twilio not configured. Please set up TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER in .env"
-        });
-    }
-
-    const { phoneNumber } = req.body || {};
-    const reqLat = Number(req.body && req.body.lat);
-    const reqLon = Number(req.body && req.body.lon);
-    const lat = Number.isFinite(reqLat) && reqLat >= -90 && reqLat <= 90 ? reqLat : DEFAULT_LAT;
-    const lon = Number.isFinite(reqLon) && reqLon >= -180 && reqLon <= 180 ? reqLon : DEFAULT_LON;
-
-    if (!phoneNumber) {
-        return res.status(400).json({ success: false, error: "Phone number is required" });
-    }
-
-    try {
-        const weatherPayload = await getWeatherPayload(lat, lon);
-        const message = buildWeatherSmsMessage(weatherPayload);
-
-        const sms = await twilioClient.messages.create({
-            body: message,
-            from: process.env.TWILIO_PHONE_NUMBER,
-            to: phoneNumber
-        });
-
-        return res.json({
-            success: true,
-            sid: sms.sid,
-            message: "Weather alert SMS sent"
-        });
-    } catch (error) {
-        console.log("❌ Weather SMS Error:", error.message);
-        return res.status(500).json({
-            success: false,
-            error: "Failed to send weather alert SMS: " + error.message
         });
     }
 });

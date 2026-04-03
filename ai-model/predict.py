@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.preprocessing import image
 import sys
 import os
 
@@ -27,9 +26,9 @@ img_path = sys.argv[1]
 crop_type = sys.argv[2].strip().lower() if len(sys.argv) > 2 else "all"
 
 input_size = get_model_input_size(model)
-img = image.load_img(img_path, target_size=(input_size, input_size))
+img = tf.keras.utils.load_img(img_path, target_size=(input_size, input_size))
 # Model already includes a Rescaling layer, so keep raw pixel range here.
-img_array = image.img_to_array(img)
+img_array = tf.keras.utils.img_to_array(img)
 img_array = np.expand_dims(img_array, axis=0)
 
 prediction = model.predict(img_array)

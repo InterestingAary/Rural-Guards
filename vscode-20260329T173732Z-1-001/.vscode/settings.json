@@ -1,0 +1,11 @@
+{
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "html.validate.scripts": false,
+    "html.validate.styles": false,
+    "emmet.includeLanguages": {
+        "html": "html"
+    },
+    "files.associations": {
+        "*.html": "html"
+    }
+}

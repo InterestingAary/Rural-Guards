@@ -1,0 +1,5992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rural Guards — Rural toolkit for Andhra Pradesh</title>
+<script>
+(function () {
+    try {
+        var storedTheme = localStorage.getItem("rural-guards-theme");
+        var prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+        var theme = storedTheme || (prefersLight ? "light" : "dark");
+        document.documentElement.dataset.theme = theme === "light" ? "light" : "dark";
+    } catch (error) {
+        document.documentElement.dataset.theme = "dark";
+    }
+})();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style>
+/* Emergent-inspired: dark, grid, large type, bento, sticky nav */
+:root {
+    --bg: #050506;
+    --bg-elevated: #0a0a0b;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.14);
+    --text: #fafafa;
+    --muted: #a1a1aa;
+    --muted2: #71717a;
+    --nav-bg: rgba(5, 5, 6, 0.8);
+    --surface: rgba(255, 255, 255, 0.02);
+    --surface-strong: rgba(10, 10, 11, 0.6);
+    --surface-soft: rgba(255, 255, 255, 0.04);
+    --surface-hover: rgba(255, 255, 255, 0.06);
+    --button-bg: #ffffff;
+    --button-fg: #0a0a0b;
+    --button-shadow: 0 8px 28px rgba(255, 255, 255, 0.12);
+    --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 24px 48px rgba(0, 0, 0, 0.35);
+    --grid-line: rgba(255, 255, 255, 0.03);
+    --splash-bg: linear-gradient(180deg, #040405 0%, #050506 100%);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.15);
+    --chat-toggle-bg: #000000;
+    --chat-toggle-fg: #ffffff;
+    --chat-tooltip-bg: #1a1a1a;
+    --chat-tooltip-fg: #ffffff;
+    --chat-panel-bg: rgba(15, 15, 15, 0.95);
+    --chat-panel-border: rgba(255, 255, 255, 0.1);
+    --chat-panel-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    --chat-header-fg: #ffffff;
+    --chat-close-fg: rgba(255, 255, 255, 0.7);
+    --chat-message-ai: rgba(255, 255, 255, 0.1);
+    --chat-input-bg: rgba(255, 255, 255, 0.05);
+    --chat-input-border: rgba(255, 255, 255, 0.2);
+    --chat-input-fg: #ffffff;
+    --chat-placeholder: rgba(255, 255, 255, 0.5);
+    --cyan: #22d3ee;
+    --violet: #a78bfa;
+    --pink: #e879f9;
+    --error: #f87171;
+    --success: #4ade80;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --font: "Inter", system-ui, -apple-system, sans-serif;
+    --nav-h: 56px;
+    color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+    --bg: #f4f7fb;
+    --bg-elevated: #ffffff;
+    --border: rgba(15, 23, 42, 0.12);
+    --border-hover: rgba(15, 23, 42, 0.2);
+    --text: #0f172a;
+    --muted: #475569;
+    --muted2: #64748b;
+    --nav-bg: rgba(255, 255, 255, 0.82);
+    --surface: rgba(255, 255, 255, 0.88);
+    --surface-strong: rgba(255, 255, 255, 0.96);
+    --surface-soft: rgba(15, 23, 42, 0.04);
+    --surface-hover: rgba(15, 23, 42, 0.06);
+    --button-bg: #0f172a;
+    --button-fg: #ffffff;
+    --button-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+    --card-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    --grid-line: rgba(15, 23, 42, 0.05);
+    --splash-bg: linear-gradient(180deg, #f8fbff 0%, #eef3f9 100%);
+    --scrollbar-thumb: rgba(15, 23, 42, 0.16);
+    --scrollbar-thumb-hover: rgba(15, 23, 42, 0.26);
+    --chat-toggle-bg: #0f172a;
+    --chat-toggle-fg: #ffffff;
+    --chat-tooltip-bg: #e2e8f0;
+    --chat-tooltip-fg: #0f172a;
+    --chat-panel-bg: rgba(255, 255, 255, 0.96);
+    --chat-panel-border: rgba(15, 23, 42, 0.1);
+    --chat-panel-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+    --chat-header-fg: #0f172a;
+    --chat-close-fg: rgba(15, 23, 42, 0.7);
+    --chat-message-ai: rgba(15, 23, 42, 0.06);
+    --chat-input-bg: rgba(255, 255, 255, 0.92);
+    --chat-input-border: rgba(15, 23, 42, 0.14);
+    --chat-input-fg: #0f172a;
+    --chat-placeholder: rgba(71, 85, 105, 0.7);
+    color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+.bg-mesh {
+    position: fixed;
+    inset: 0;
+    z-index: -3;
+    background: var(--bg);
+    overflow: hidden;
+}
+
+.bg-mesh::before {
+    content: "";
+    position: absolute;
+    width: min(100vw, 900px);
+    height: min(100vw, 900px);
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse, rgba(139, 92, 246, 0.15) 0%, transparent 55%);
+    filter: blur(40px);
+    pointer-events: none;
+}
+
+.bg-mesh::after {
+    content: "";
+    position: absolute;
+    width: min(80vw, 600px);
+    height: min(80vw, 600px);
+    bottom: -10%;
+    right: -5%;
+    background: radial-gradient(circle, rgba(34, 211, 238, 0.12) 0%, transparent 60%);
+    filter: blur(60px);
+    pointer-events: none;
+}
+
+.bg-mesh .blob {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    bottom: 30%;
+    left: 5%;
+    background: radial-gradient(circle, rgba(232, 121, 249, 0.08) 0%, transparent 65%);
+    filter: blur(50px);
+}
+
+.bg-grid {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+    pointer-events: none;
+}
+
+.noise {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Navigation */
+.top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: var(--nav-h);
+    background: var(--nav-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-left: auto;
+}
+
+.lang-select {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface-soft);
+    color: var(--text);
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.45rem 0.82rem;
+    min-width: 132px;
+    font-family: inherit;
+}
+
+.lang-select option {
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: #0f172a;
+    background: #ffffff;
+}
+
+.lang-select:focus {
+    outline: 2px solid rgba(34, 211, 238, 0.45);
+    outline-offset: 2px;
+}
+
+.nav-brand {
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.nav-brand:hover {
+    color: var(--text);
+}
+
+.nav-links {
+    display: none;
+    align-items: center;
+    gap: 1.75rem;
+}
+
+@media (min-width: 640px) {
+    .nav-links {
+        display: flex;
+    }
+}
+
+.nav-links a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.nav-links a:hover {
+    color: var(--text);
+}
+
+.nav-cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--button-fg);
+    background: var(--button-bg);
+    border-radius: 999px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.4s ease, background 0.2s, color 0.2s, border-color 0.2s;
+    opacity: 0;
+    pointer-events: none;
+    border: 1px solid transparent;
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.95rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s, color 0.2s;
+    margin-top: 0;
+    margin-right: 0;
+    box-shadow: none;
+}
+
+.nav-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--button-shadow);
+}
+
+.theme-toggle:hover {
+    transform: translateY(-1px);
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
+}
+
+.nav-cta.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Splash Screen Overlay */
+.splash-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background:
+        radial-gradient(circle at top, rgba(34, 211, 238, 0.08) 0%, transparent 35%),
+        radial-gradient(circle at bottom right, rgba(167, 139, 250, 0.08) 0%, transparent 30%),
+        var(--splash-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.6s ease-out;
+}
+
+.splash-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(180, 180, 180, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(180, 180, 180, 0.08) 1px, transparent 1px);
+    background-size: 52px 52px;
+    mask-image: radial-gradient(circle at 42% 45%, black 35%, transparent 88%);
+}
+
+.splash-overlay.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.splash-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 1600px;
+    width: 100%;
+    min-height: 100vh;
+    padding: 1.5rem 2rem 2rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.8rem;
+    animation: splashIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.splash-honeycomb {
+    width: min(760px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin-bottom: 0;
+    position: relative;
+    isolation: isolate;
+    padding: 0.4rem;
+}
+
+.honey-row {
+    display: flex;
+    justify-content: flex-start;
+    gap: 0.7rem;
+    --row-offset: 0px;
+    transform: translateX(var(--row-offset));
+    opacity: 0;
+    animation: rowEnterLeft 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.honey-row.offset {
+    --row-offset: 56px;
+    animation-name: rowEnterRight;
+}
+
+.honey-row:nth-child(1) {
+    animation-delay: 0.08s;
+}
+
+.honey-row:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.honey-row:nth-child(3) {
+    animation-delay: 0.32s;
+}
+
+.honey-cell {
+    width: 108px;
+    height: 108px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
+    background: var(--surface-soft);
+}
+
+.honey-cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(1.08) contrast(1.04);
+}
+
+@keyframes rowEnterLeft {
+    from {
+        opacity: 0;
+        transform: translateX(calc(var(--row-offset) - 180px));
+    }
+    to {
+        opacity: 1;
+        transform: translateX(var(--row-offset));
+    }
+}
+
+@keyframes rowEnterRight {
+    from {
+        opacity: 0;
+        transform: translateX(calc(var(--row-offset) + 180px));
+    }
+    to {
+        opacity: 1;
+        transform: translateX(var(--row-offset));
+    }
+}
+
+@keyframes splashIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.splash-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 2rem;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    border-radius: 999px;
+    background: rgba(34, 211, 238, 0.05);
+    backdrop-filter: blur(10px);
+}
+
+.splash-title {
+    margin: 0 0 1.5rem;
+    font-size: clamp(1.85rem, 5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.05em;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    background: linear-gradient(135deg, #e0f2fe 0%, #c4b5fd 25%, #e879f9 50%, #22d3ee 75%, #86efac 100%);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradShift 8s ease infinite;
+}
+
+@media (max-width: 1200px) {
+    .splash-title {
+        white-space: normal;
+        font-size: clamp(2.5rem, 8vw, 3.5rem);
+    }
+}
+
+@keyframes gradShift {
+    0%, 100% {
+        background-position: 0% center;
+    }
+    50% {
+        background-position: 100% center;
+    }
+}
+
+.splash-subtitle {
+    margin: 0 0 1.2rem;
+    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+    font-weight: 500;
+    line-height: 1.65;
+    color: var(--muted);
+    max-width: 100%;
+}
+
+.splash-center-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 620px;
+    padding: 0.4rem 0.8rem 0.9rem;
+    text-align: center;
+}
+
+.splash-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.82rem 1.9rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: #0a0a0b;
+    background: #fff;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 20px 60px rgba(255, 255, 255, 0.1);
+}
+
+.splash-cta:hover:not(.animating) {
+    transform: translateY(-4px);
+    box-shadow: 0 30px 80px rgba(255, 255, 255, 0.15);
+}
+
+.splash-cta.animating {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.splash-features {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: center;
+    gap: 2rem 2.5rem;
+    margin-top: 2.5rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+@media (max-width: 600px) {
+    .splash-features {
+        grid-template-columns: 1fr;
+        gap: 0.9rem;
+        padding: 0;
+    }
+}
+
+.splash-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.splash-feature i {
+    font-size: 1.25rem;
+    color: var(--cyan);
+}
+
+.official-profile-card {
+    margin-top: 1.3rem;
+    width: min(100%, 470px);
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface-soft);
+    text-align: left;
+}
+
+.official-profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    margin-bottom: 0.35rem;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.official-profile-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.official-count-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface-hover);
+    color: var(--muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.official-count-badge[data-has-users="true"] {
+    color: var(--text);
+    border-color: var(--border-hover);
+}
+
+.official-profile-status {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.official-profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.65rem;
+}
+
+.official-profile-actions button {
+    margin-top: 0;
+    margin-right: 0;
+}
+
+.official-auth-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.58);
+}
+
+.official-auth-modal[hidden] {
+    display: none;
+}
+
+.official-auth-card {
+    width: min(100%, 460px);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    padding: 1rem 1rem 1.1rem;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+}
+
+.official-auth-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.65rem;
+}
+
+.official-auth-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text);
+}
+
+.official-auth-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface-soft);
+    color: var(--text);
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+}
+
+.official-auth-subtitle {
+    margin: 0 0 0.65rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+.official-auth-tabs {
+    display: flex;
+    gap: 0.45rem;
+    margin-bottom: 0.65rem;
+}
+
+.official-auth-tabs button {
+    margin: 0;
+}
+
+.official-auth-message {
+    min-height: 1.2rem;
+    margin-top: 0.45rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
+.official-auth-message.success {
+    color: #9be9ae;
+}
+
+.official-auth-message.error {
+    color: #ffb4b4;
+}
+
+@media (max-width: 900px) {
+    .splash-honeycomb {
+        display: none;
+    }
+
+    .splash-overlay {
+        align-items: flex-start;
+        overflow-y: auto;
+    }
+
+    .splash-content {
+        min-height: 100vh;
+        padding: 1rem 0.55rem 1.6rem;
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 0.8rem;
+    }
+
+    .splash-center-wrapper {
+        max-width: 100%;
+        padding: 0.2rem 0.25rem 0.45rem;
+    }
+
+    .splash-title {
+        white-space: normal;
+        font-size: clamp(2rem, 9vw, 3rem);
+        line-height: 1.08;
+    }
+
+    .splash-subtitle {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .splash-cta {
+        width: min(100%, 320px);
+        padding: 0.95rem 1.6rem;
+    }
+
+    .splash-features {
+        gap: 1rem 1.5rem;
+        margin-top: 1.1rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .honey-cell {
+        width: 78px;
+        height: 78px;
+    }
+
+    .honey-row {
+        gap: 0.45rem;
+    }
+
+    .honey-row.offset {
+        transform: translateX(30px);
+        --row-offset: 30px;
+    }
+}
+
+@media (max-width: 640px) {
+    .theme-toggle span {
+        display: none;
+    }
+
+    .theme-toggle {
+        padding-inline: 0.85rem;
+    }
+}
+
+@media (max-width: 520px) {
+    .honey-cell {
+        width: 62px;
+        height: 62px;
+    }
+
+    .honey-row {
+        gap: 0.35rem;
+    }
+
+    .honey-row.offset {
+        --row-offset: 22px;
+    }
+}
+
+/* Main Layout with Sidebar */
+.layout-wrapper {
+    display: flex;
+    gap: 1.5rem;
+    max-width: 2000px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+}
+
+/* Fixed Left Sidebar */
+.sidebar {
+    position: sticky;
+    top: calc(var(--nav-h) + 1rem);
+    width: 300px;
+    flex-shrink: 0;
+    height: fit-content;
+    max-height: calc(100vh - var(--nav-h) - 2rem);
+    overflow-y: auto;
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+}
+
+/* Main Content Area */
+.page-main {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Responsive: Hide sidebar on mobile */
+@media (max-width: 1024px) {
+    .layout-wrapper {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .sidebar {
+        position: static;
+        width: 100%;
+        max-height: none;
+        padding: 1.15rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .layout-wrapper {
+        padding: 0 1rem 3rem;
+        gap: 1rem;
+    }
+
+    .page-main {
+        width: 100%;
+    }
+
+    .card,
+    .sidebar {
+        border-radius: 14px;
+    }
+
+    .scheme-block {
+        padding: 0.7rem 0.75rem;
+    }
+
+    .scheme-block h3 {
+        font-size: 0.82rem;
+    }
+
+    .scheme-block p,
+    .scheme-block a {
+        font-size: 0.74rem;
+    }
+}
+
+/* Hero */
+.hero-emergent {
+    text-align: center;
+    padding: 3rem 0 4rem;
+    animation: heroIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes heroIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0 0 1.25rem;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface-soft);
+}
+
+.hero-headline {
+    margin: 0;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+}
+
+.hero-line {
+    display: block;
+    font-size: clamp(2.25rem, 6vw, 3.5rem);
+    font-weight: 600;
+    color: var(--text);
+}
+
+.hero-gradient {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: clamp(2.25rem, 6vw, 3.5rem);
+    font-weight: 600;
+    background: linear-gradient(120deg, #c4b5fd 0%, #e879f9 35%, #22d3ee 70%, #67e8f9 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradMove 10s ease infinite;
+}
+
+@keyframes gradMove {
+    0%,
+    100% {
+        background-position: 0% center;
+    }
+    50% {
+        background-position: 100% center;
+    }
+}
+
+.hero-lead {
+    margin: 1.5rem auto 0;
+    max-width: 36rem;
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: var(--muted);
+    font-weight: 400;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+}
+
+.btn-hero-primary,
+.btn-hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1.35rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.btn-hero-primary {
+    color: var(--button-fg);
+    background: var(--button-bg);
+    border: none;
+}
+
+.btn-hero-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--button-shadow);
+}
+
+.btn-hero-secondary {
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--border);
+}
+
+.btn-hero-secondary:hover {
+    border-color: var(--border-hover);
+    background: var(--surface-soft);
+}
+
+.hero-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2.5rem;
+    font-size: 0.8rem;
+    color: var(--muted2);
+}
+
+.hero-stat-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 12px rgba(74, 222, 128, 0.6);
+}
+
+/* Section */
+.section-tools {
+    padding-top: 1rem;
+}
+
+.section-heading {
+    margin: 0 0 0.65rem;
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    text-align: center;
+    color: var(--text);
+}
+
+.section-lead {
+    margin: 0 auto 2rem;
+    max-width: 36rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.bento-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+    .bento-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .card-feature-wide {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (min-width: 1100px) {
+    .bento-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: stretch;
+        grid-auto-flow: dense;
+    }
+    .card-feature-wide {
+        grid-column: 1 / -1;
+    }
+    #schemesCard {
+        grid-column: 1 / -1;
+    }
+
+    /* Keep weather on left and expand map to fill the right side cleanly */
+    #weather-section {
+        grid-column: 1 / 2;
+    }
+
+    #dealersMapCard {
+        grid-column: 2 / 4;
+    }
+}
+
+/* Cards */
+.card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.35rem 1.4rem 1.45rem;
+    transition: opacity 0.55s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s, box-shadow 0.25s;
+    opacity: 0;
+    transform: translateY(24px);
+}
+
+.card.in-view {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--card-shadow);
+}
+
+.card h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    letter-spacing: -0.02em;
+}
+
+.card-icon-w {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.card:hover .card-icon-w {
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
+}
+
+.card-icon-w i {
+    font-size: 1rem;
+    color: #d4d4d8;
+}
+
+.card-title-text {
+    flex: 1;
+    text-align: left;
+}
+
+.card p,
+.card label,
+.card .input-row,
+#result,
+#advice,
+#weather {
+    font-size: 0.9rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+.card p {
+    margin: 0 0 0.9rem;
+}
+
+/* Buttons in cards */
+button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.55rem 1.15rem;
+    margin-top: 0.35rem;
+    margin-right: 0.4rem;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--button-fg);
+    background: var(--button-bg);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--button-shadow);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+button:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+}
+
+button.btn-outline {
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--border);
+    box-shadow: none;
+}
+
+button.btn-outline:hover {
+    background: var(--surface-soft);
+    border-color: var(--border-hover);
+    box-shadow: none;
+}
+
+button::after {
+    display: none;
+}
+
+input[type="file"] {
+    margin-top: 0.2rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--border);
+    background: var(--surface-soft);
+    color: var(--text);
+    width: 100%;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+input[type="file"]:hover {
+    border-color: var(--border-hover);
+}
+
+input[type="file"]::file-selector-button,
+input[type="file"]::-webkit-file-upload-button {
+    margin-right: 0.75rem;
+    padding: 0.4rem 0.85rem;
+    border: none;
+    border-radius: 999px;
+    background: var(--surface-hover);
+    color: var(--text);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+#result,
+#advice,
+#weather {
+    margin-top: 0.9rem;
+    padding: 1rem 1.1rem;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--cyan);
+    white-space: pre-wrap;
+    min-height: 3rem;
+    color: #e4e4e7;
+}
+
+#result strong,
+#advice strong,
+#weather strong {
+    color: #67e8f9;
+    font-weight: 600;
+}
+
+#result.error,
+#advice.error,
+#weather.error {
+    border-left-color: var(--error);
+    background: rgba(248, 113, 113, 0.06);
+    color: #fecaca;
+}
+
+#result.success,
+#advice.success,
+#weather.success {
+    border-left-color: var(--success);
+    background: rgba(74, 222, 128, 0.06);
+    color: #dcfce7;
+}
+
+.input-row {
+    margin: 0.55rem 0;
+}
+
+.input-row label {
+    display: block;
+    font-size: 0.72rem;
+    margin-bottom: 0.35rem;
+    color: var(--muted2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select.input-select {
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.86rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.crop-type-button {
+    width: 100%;
+    padding: 0.72rem 1rem;
+    margin: 0.45rem 0 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--button-bg);
+    color: var(--button-fg);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    box-shadow: var(--button-shadow);
+    cursor: pointer;
+}
+
+.crop-type-button:focus {
+    outline: 2px solid rgba(34, 211, 238, 0.45);
+    outline-offset: 2px;
+}
+
+:root[data-theme="light"] .crop-type-button {
+    background: #0f172a;
+    color: #ffffff;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+.input-select:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.04);
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+    color: var(--muted2);
+}
+
+.phone-list {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.phone-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.45rem;
+    align-items: center;
+}
+
+.phone-row .remove-phone {
+    margin: 0;
+    padding: 0.5rem 0.82rem;
+}
+
+.small-note {
+    margin: 0.35rem 0 0;
+    font-size: 0.74rem;
+    color: var(--muted2);
+}
+
+.official-guard {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem 0.75rem;
+    margin-bottom: 0.65rem;
+    background: var(--surface-soft);
+}
+
+.official-guard p {
+    margin: 0 0 0.45rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.official-guard button {
+    margin: 0;
+}
+
+.dam-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.45rem;
+}
+
+#damStatus {
+    margin-top: 1rem;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.45;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border);
+}
+
+.loading {
+    animation: pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.55;
+    }
+}
+
+.footer-emergent {
+    margin-top: 4rem;
+    padding: 2.5rem 0 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.footer-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+    .footer-grid {
+        grid-template-columns: 2fr 1fr 1fr;
+    }
+}
+
+.footer-brand {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin: 0 0 0.5rem;
+}
+
+.footer-tag {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--muted2);
+    line-height: 1.5;
+    max-width: 18rem;
+}
+
+.footer-col h4 {
+    margin: 0 0 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted2);
+}
+
+.footer-col a {
+    display: block;
+    margin: 0.4rem 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-decoration: none;
+}
+
+.footer-col a:hover {
+    color: var(--text);
+}
+
+.footer-bottom {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--muted2);
+}
+
+.spinner {
+    width: 17px;
+    height: 17px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.65s linear infinite;
+    display: inline-block;
+    margin-right: 0.4rem;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.88rem;
+}
+
+.success-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    background: var(--success);
+    color: #0a0a0b;
+    font-size: 0.6rem;
+    font-weight: 800;
+    margin-right: 0.3rem;
+    vertical-align: middle;
+}
+
+.error-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    background: var(--error);
+    color: #fff;
+    font-size: 0.65rem;
+    margin-right: 0.3rem;
+    vertical-align: middle;
+}
+
+button.loading {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.seller-lines p {
+    margin: 0.45rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border);
+    transition: border-color 0.2s;
+}
+
+.seller-lines p:hover {
+    border-color: var(--border-hover);
+}
+
+.seller-lines i {
+    color: #a1a1aa;
+    width: 1rem;
+}
+
+.sellers-dynamic {
+    display: grid;
+    gap: 0.5rem;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 0.3rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(103, 232, 249, 0.55) rgba(255, 255, 255, 0.06);
+}
+
+.sellers-dynamic::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sellers-dynamic::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 999px;
+}
+
+.sellers-dynamic::-webkit-scrollbar-thumb {
+    background: rgba(103, 232, 249, 0.5);
+    border-radius: 999px;
+}
+
+.seller-entry {
+    display: grid;
+    gap: 0.4rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.24);
+    border: 1px solid var(--border);
+}
+
+.seller-entry-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.seller-entry-name {
+    color: var(--text);
+    font-weight: 700;
+    font-size: 0.86rem;
+    line-height: 1.35;
+}
+
+.seller-entry-meta {
+    color: var(--muted2);
+    font-size: 0.74rem;
+}
+
+.seller-entry-phone,
+.seller-entry-actions a {
+    color: #67e8f9;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.seller-entry-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.seller-entry-actions a,
+.seller-entry-actions button {
+    margin: 0;
+    padding: 0.42rem 0.75rem;
+    font-size: 0.74rem;
+}
+
+.map-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0.15rem 0 0.55rem;
+}
+
+.map-actions button {
+    margin: 0;
+}
+
+#dealersMapCard {
+    display: flex;
+    flex-direction: column;
+}
+
+.dealers-map {
+    height: 300px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-top: 0.4rem;
+    background: rgba(0, 0, 0, 0.25);
+    transition: height 0.25s ease, border-color 0.2s ease;
+    will-change: transform;
+}
+
+@media (max-width: 1099px) {
+    #dealersMapCard {
+        grid-column: 1 / -1;
+    }
+
+    .dealers-map {
+        height: 250px;
+    }
+}
+
+.map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.65rem;
+    font-size: 0.72rem;
+    color: var(--muted2);
+}
+
+.map-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+#dealersMapStatus {
+    margin-top: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--muted2);
+}
+
+#dealersRouteStatus {
+    margin-top: 0.45rem;
+}
+
+.dealers-map.is-fullscreen {
+    position: fixed !important;
+    inset: 16px !important;
+    z-index: 1000;
+    height: auto !important;
+    border-radius: 18px;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.55);
+}
+
+.map-fullscreen-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    z-index: 999;
+}
+
+.current-location-marker {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #3b82f6;
+    border: 3px solid rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.18), 0 0 24px rgba(59, 130, 246, 0.45);
+    position: relative;
+}
+
+.current-location-marker::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 2px solid rgba(59, 130, 246, 0.35);
+    animation: locationPulse 1.8s ease-out infinite;
+}
+
+@keyframes locationPulse {
+    0% {
+        transform: scale(0.65);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.route-target-marker {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #fbbf24, #f59e0b);
+    border: 3px solid rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.35);
+}
+
+.dealer-route-line {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.dealer-pin {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(6px);
+}
+
+.dealer-seed { background: rgba(34, 197, 94, 0.72); }
+.dealer-fertilizer { background: rgba(234, 179, 8, 0.72); }
+.dealer-fish { background: rgba(59, 130, 246, 0.72); }
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+    background: #0b0b0c;
+    color: #f4f4f5;
+    border: 1px solid var(--border);
+}
+
+.scheme-lines p {
+    margin: 0.45rem 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    padding: 0.55rem 0.65rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    transition: border-color 0.2s;
+}
+
+.scheme-lines p:hover {
+    border-color: var(--border-hover);
+}
+
+.scheme-lines i {
+    color: var(--muted);
+    width: 1rem;
+    margin-top: 0.2rem;
+}
+
+.scheme-note {
+    margin-top: 0.7rem;
+    font-size: 0.78rem;
+    color: var(--muted2);
+}
+
+.scheme-block {
+    margin-top: 0.7rem;
+    padding: 0.75rem 0.8rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+}
+
+.scheme-block h3 {
+    margin: 0.75rem 0 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cyan);
+}
+
+.scheme-block p {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--muted);
+}
+
+.scheme-block a {
+    display: inline-block;
+    margin-top: 0.55rem;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.scheme-block a:hover {
+    color: var(--cyan);
+    transform: translateX(2px);
+}
+
+.scheme-block a:focus-visible {
+    color: var(--cyan);
+    outline: none;
+    text-decoration: underline;
+}
+
+/* Sidebar Schemes Card */
+#schemesCard {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#schemesCard h2 {
+    margin: 0 0 1.25rem 0;
+    font-size: 0.95rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+#schemesCard p:first-of-type {
+    display: none;
+}
+
+#schemesCard .scheme-block {
+    margin-bottom: 0.9rem;
+}
+
+#schemesCard .scheme-note {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.7rem;
+    color: var(--muted2);
+}
+
+#tools,
+#weather-section,
+#damAlertCard {
+    scroll-margin-top: calc(var(--nav-h) + 12px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    .card {
+        opacity: 1;
+        transform: none;
+    }
+}
+/* Chatbot Styles */
+#chatbotToggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+    background: var(--chat-toggle-bg);
+    color: var(--chat-toggle-fg);
+  padding: 12px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  z-index: 9999;
+    border: 1.5px solid var(--chat-panel-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font);
+}
+
+#chatbotToggle:hover {
+  transform: scale(1.05);
+    box-shadow: 0 6px 25px rgba(15, 23, 42, 0.18);
+    border-color: var(--border-hover);
+}
+
+#chatbotToggle:active {
+  transform: scale(0.98);
+}
+
+#chatTooltip {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+    background: var(--chat-tooltip-bg);
+    color: var(--chat-tooltip-fg);
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-bottom: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--chat-panel-border);
+}
+
+#chatTooltip.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+#chatbotBox {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 350px;
+  height: 500px;
+    background: var(--chat-panel-bg);
+  backdrop-filter: blur(20px);
+    border: 1px solid var(--chat-panel-border);
+  border-radius: 20px;
+  z-index: 9998;
+  display: none;
+  flex-direction: column;
+    box-shadow: var(--chat-panel-shadow);
+  transform: translateX(400px);
+  transition: all 0.3s ease;
+  font-family: var(--font);
+}
+
+#chatbotBox.open {
+  display: flex;
+  transform: translateX(0);
+}
+
+#chatHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+    border-bottom: 1px solid var(--chat-panel-border);
+  font-weight: 600;
+    color: var(--chat-header-fg);
+}
+
+#chatClose {
+  background: none;
+  border: none;
+    color: var(--chat-close-fg);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+#chatClose:hover {
+    background: var(--surface-soft);
+    color: var(--chat-header-fg);
+}
+
+#chatMessages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.4;
+  animation: messageIn 0.3s ease-out;
+  word-wrap: break-word;
+}
+
+.message.user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.message.ai {
+  align-self: flex-start;
+    background: var(--chat-message-ai);
+    color: var(--chat-header-fg);
+  border-bottom-left-radius: 4px;
+}
+
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#typingIndicator {
+  padding: 0 20px 10px;
+  display: flex;
+  align-items: center;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  animation: typing 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+#chatInputArea {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 20px;
+    border-top: 1px solid var(--chat-panel-border);
+    align-items: center;
+}
+
+#chatInput {
+    flex: 1 1 180px;
+    min-width: 0;
+  padding: 12px 16px;
+    border: 1px solid var(--chat-input-border);
+  border-radius: 25px;
+    background: var(--chat-input-bg);
+    color: var(--chat-input-fg);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: var(--font);
+}
+
+#chatInput:focus {
+  border-color: #667eea;
+    background: var(--surface-hover);
+}
+
+#chatInput::placeholder {
+    color: var(--chat-placeholder);
+}
+
+#sendChat {
+    flex: 0 0 auto;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font);
+}
+
+#sendChat:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+#sendChat:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+#voiceChat {
+    width: 68px;
+    height: 68px;
+    min-width: 68px;
+    padding: 0;
+    background: radial-gradient(circle at 30% 30%, #38bdf8 0%, #0ea5e9 34%, #0369a1 100%);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    font-family: var(--font);
+    position: relative;
+    box-shadow: 0 10px 24px rgba(14, 165, 233, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+#voiceChat:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(14, 165, 233, 0.38), 0 0 0 1px rgba(255, 255, 255, 0.14) inset;
+}
+
+#voiceChat.listening {
+    background: radial-gradient(circle at 30% 30%, #fca5a5 0%, #ef4444 34%, #991b1b 100%);
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.14), 0 12px 30px rgba(239, 68, 68, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.14) inset;
+    animation: orbBeat 1.05s ease-in-out infinite;
+}
+
+#voiceChat::before,
+#voiceChat::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px solid rgba(96, 165, 250, 0.26);
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+#voiceChat::before {
+    animation: orbRing 2.6s ease-out infinite;
+}
+
+#voiceChat::after {
+    inset: -16px;
+    border-color: rgba(56, 189, 248, 0.14);
+    animation: orbRing 2.6s ease-out infinite 1.1s;
+}
+
+#voiceChat i {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes orbRing {
+    0% {
+        transform: scale(0.82);
+        opacity: 0.75;
+    }
+    100% {
+        transform: scale(1.28);
+        opacity: 0;
+    }
+}
+
+@keyframes orbBeat {
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-1px) scale(1.04);
+    }
+}
+
+#chatVoiceStatus {
+    margin: 0 20px 10px;
+    font-size: 12px;
+    color: var(--muted);
+    padding: 0 20px;
+}
+
+#voiceCopilotStage {
+    position: fixed;
+    inset: 0;
+    z-index: 10005;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background:
+        radial-gradient(circle at 50% 38%, rgba(34, 211, 238, 0.18), transparent 26%),
+        radial-gradient(circle at 50% 52%, rgba(167, 139, 250, 0.16), transparent 30%),
+        rgba(4, 6, 14, 0.82);
+    backdrop-filter: blur(18px) saturate(130%);
+    -webkit-backdrop-filter: blur(18px) saturate(130%);
+}
+
+#voiceCopilotStage.open {
+    display: flex;
+}
+
+.voice-stage-shell {
+    position: relative;
+    width: min(560px, 100%);
+    border-radius: 30px;
+    padding: 28px 22px 24px;
+    background: linear-gradient(180deg, rgba(9, 15, 29, 0.92), rgba(8, 11, 20, 0.88));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+}
+
+.voice-stage-shell::before,
+.voice-stage-shell::after {
+    content: "";
+    position: absolute;
+    inset: auto;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.voice-stage-shell::before {
+    width: 380px;
+    height: 380px;
+    top: -160px;
+    right: -150px;
+    background: radial-gradient(circle, rgba(34, 211, 238, 0.16), transparent 70%);
+    filter: blur(18px);
+}
+
+.voice-stage-shell::after {
+    width: 320px;
+    height: 320px;
+    left: -140px;
+    bottom: -130px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.14), transparent 72%);
+    filter: blur(18px);
+}
+
+.voice-stage-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.voice-stage-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: #dbeafe;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.voice-stage-close {
+    margin: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.voice-stage-center {
+    display: grid;
+    justify-items: center;
+    gap: 18px;
+    text-align: center;
+}
+
+.voice-stage-orb {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    display: grid;
+    place-items: center;
+}
+
+.voice-stage-orb::before,
+.voice-stage-orb::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+}
+
+.voice-stage-orb::before {
+    background: radial-gradient(circle at 30% 30%, rgba(125, 211, 252, 0.48), rgba(14, 165, 233, 0.26) 38%, rgba(3, 105, 161, 0.08) 66%, rgba(0, 0, 0, 0) 100%);
+    box-shadow: 0 0 0 12px rgba(14, 165, 233, 0.08), 0 0 54px rgba(14, 165, 233, 0.22);
+}
+
+.voice-stage-orb::after {
+    inset: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 0 28px rgba(255, 255, 255, 0.05);
+}
+
+.voice-stage-state-listening .voice-stage-orb::before {
+    animation: voiceGlow 1.1s ease-in-out infinite;
+    box-shadow: 0 0 0 18px rgba(59, 130, 246, 0.12), 0 0 70px rgba(59, 130, 246, 0.28);
+}
+
+.voice-stage-state-speaking .voice-stage-orb::before {
+    animation: voiceGlow 0.85s ease-in-out infinite;
+    box-shadow: 0 0 0 20px rgba(236, 72, 153, 0.14), 0 0 80px rgba(236, 72, 153, 0.3);
+}
+
+.voice-stage-state-error .voice-stage-orb::before {
+    background: radial-gradient(circle at 30% 30%, rgba(252, 165, 165, 0.48), rgba(239, 68, 68, 0.3) 38%, rgba(127, 29, 29, 0.12) 66%, rgba(0, 0, 0, 0) 100%);
+}
+
+.voice-orb-core {
+    position: relative;
+    z-index: 2;
+    width: 82px;
+    height: 82px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 30%, #eff6ff 0%, #67e8f9 18%, #0ea5e9 52%, #075985 100%);
+    box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.28), 0 0 0 14px rgba(255, 255, 255, 0.04);
+}
+
+.voice-stage-state-speaking .voice-orb-core {
+    background: radial-gradient(circle at 32% 30%, #fff1f2 0%, #f9a8d4 18%, #ec4899 52%, #831843 100%);
+}
+
+.voice-stage-state-error .voice-orb-core {
+    background: radial-gradient(circle at 32% 30%, #fee2e2 0%, #fca5a5 18%, #ef4444 52%, #7f1d1d 100%);
+}
+
+.voice-waveform {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 7px;
+    height: 42px;
+}
+
+.voice-waveform span {
+    width: 8px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(125, 211, 252, 0.95), rgba(34, 211, 238, 0.4));
+    transform-origin: bottom center;
+    opacity: 0.45;
+    height: 8px;
+}
+
+.voice-stage-state-listening .voice-waveform span,
+.voice-stage-state-speaking .voice-waveform span {
+    animation: waveformBeat 0.95s ease-in-out infinite;
+}
+
+.voice-stage-state-listening .voice-waveform span:nth-child(2n),
+.voice-stage-state-speaking .voice-waveform span:nth-child(2n) {
+    animation-delay: 0.12s;
+}
+
+.voice-stage-state-listening .voice-waveform span:nth-child(3n),
+.voice-stage-state-speaking .voice-waveform span:nth-child(3n) {
+    animation-delay: 0.22s;
+}
+
+.voice-stage-state-speaking .voice-waveform span {
+    background: linear-gradient(180deg, rgba(248, 113, 113, 0.95), rgba(236, 72, 153, 0.46));
+}
+
+.voice-stage-label {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: #fff;
+    margin: 0;
+}
+
+.voice-stage-subtitle {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: rgba(226, 232, 240, 0.8);
+    max-width: 40ch;
+}
+
+.voice-stage-status {
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+    font-size: 0.82rem;
+}
+
+.voice-stage-transcript {
+    width: 100%;
+    min-height: 74px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    color: #f8fafc;
+    text-align: left;
+    line-height: 1.6;
+}
+
+.voice-stage-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.voice-stage-actions button {
+    margin: 0;
+}
+
+@keyframes waveformBeat {
+    0%,
+    100% {
+        height: 12px;
+        opacity: 0.45;
+    }
+    50% {
+        height: 42px;
+        opacity: 1;
+    }
+}
+
+@keyframes voiceGlow {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.04);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  #chatbotToggle {
+    bottom: 15px;
+    right: 15px;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+    #chatInputArea {
+        gap: 8px;
+    }
+
+    #chatInput {
+        flex-basis: 100%;
+    }
+
+    #sendChat {
+        flex: 1 1 auto;
+    }
+
+    #voiceChat {
+        width: 58px;
+        height: 58px;
+        min-width: 58px;
+        font-size: 1rem;
+    }
+
+    #voiceChat::before {
+        inset: -6px;
+    }
+
+    #voiceChat::after {
+        inset: -12px;
+    }
+
+    .dealers-map {
+        height: 220px;
+    }
+
+    .section-heading {
+        font-size: 1.35rem;
+    }
+
+    .hero-lead {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-nav {
+        padding: 0 0.75rem;
+        gap: 0.45rem;
+    }
+
+    .nav-brand {
+        font-size: 0.82rem;
+    }
+
+    .nav-actions {
+        gap: 0.35rem;
+    }
+
+    .theme-toggle {
+        padding: 0.38rem 0.62rem;
+        font-size: 0.72rem;
+    }
+
+    .theme-toggle span {
+        display: none;
+    }
+
+    .lang-select {
+        padding: 0.35rem 0.52rem;
+        font-size: 0.72rem;
+        min-width: 112px;
+        max-width: 132px;
+    }
+
+    .layout-wrapper {
+        max-width: 100%;
+        padding: 0 0.5rem 2rem;
+    }
+
+    .hero-emergent {
+        padding: 1.45rem 1rem;
+    }
+
+    .section-tools {
+        padding: 1rem 0;
+    }
+
+    .card {
+        padding: 1.1rem 1rem 1.15rem;
+    }
+
+    .card button {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .phone-row .remove-phone {
+        width: auto;
+    }
+
+    .hero-actions {
+        width: 100%;
+    }
+
+    .hero-actions a {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .official-profile-actions {
+        display: grid;
+        gap: 0.5rem;
+    }
+
+    .seller-entry-actions a,
+    .seller-entry-actions button {
+        display: inline-flex;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .map-actions button,
+    .dam-actions button {
+        width: 100%;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select,
+    textarea {
+        font-size: 16px;
+    }
+
+    #chatbotBox {
+        right: 10px;
+        left: 10px;
+        width: auto;
+        height: min(72vh, 540px);
+        bottom: 74px;
+        border-radius: 16px;
+        transform: translateY(20px);
+    }
+
+    #chatbotBox.open {
+        transform: translateY(0);
+    }
+
+    #chatInputArea {
+        padding: 12px;
+    }
+
+    #chatInput {
+        min-width: 0;
+        font-size: 13px;
+    }
+
+    #sendChat,
+    #voiceChat {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .dealers-map.is-fullscreen {
+        inset: 6px !important;
+        border-radius: 12px;
+    }
+}
+
+:root[data-lang="te"] {
+    --font: "Noto Sans Telugu", "Inter", sans-serif;
+}
+
+:root[data-lang="hi"] {
+    --font: "Noto Sans Devanagari", "Inter", sans-serif;
+}
+</style>
+</head>
+<body>
+
+<div class="bg-mesh" aria-hidden="true"><div class="blob"></div></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="noise" aria-hidden="true"></div>
+
+<!-- Splash Screen -->
+<div class="splash-overlay" id="splashOverlay">
+    <div class="splash-content">
+        <div class="splash-honeycomb" aria-hidden="true">
+            <div class="honey-row">
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=500&q=80" alt=""></div>
+            </div>
+            <div class="honey-row offset">
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1499529112087-3cb3b73cec95?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=500&q=80" alt=""></div>
+            </div>
+            <div class="honey-row">
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1519331379826-f10be5486c6f?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1466721591366-2d5fba72006d?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=500&q=80" alt=""></div>
+                <div class="honey-cell"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=500&q=80" alt=""></div>
+            </div>
+        </div>
+
+        <!-- Center Column: Title & CTA -->
+        <div class="splash-center-wrapper">
+            <div class="splash-kicker">
+                <i class="fas fa-leaf"></i>
+                <span>AI-POWERED FARMING TOOLKIT</span>
+            </div>
+            <h1 class="splash-title">Protect Crops & Communities</h1>
+            <p class="splash-subtitle" data-i18n="splashSubtitle">Real-time disease detection, weather alerts, dam safety monitoring, and government schemes-all in one place.</p>
+            <button class="splash-cta" id="splashCta" data-i18n="splashGetStarted">Get Started</button>
+            <div class="splash-features">
+                <div class="splash-feature">
+                    <i class="fas fa-microscope"></i>
+                    <span data-i18n="splashFeatureDisease">AI Disease Detection</span>
+                </div>
+                <div class="splash-feature">
+                    <i class="fas fa-cloud-sun"></i>
+                    <span data-i18n="splashFeatureWeather">Real-time Weather</span>
+                </div>
+                <div class="splash-feature">
+                    <i class="fas fa-water"></i>
+                    <span data-i18n="splashFeatureDam">Dam Monitoring</span>
+                </div>
+                <div class="splash-feature">
+                    <i class="fas fa-landmark"></i>
+                    <span data-i18n="splashFeatureSchemes">Gov Schemes</span>
+                </div>
+            </div>
+            <div class="official-profile-card" id="officialProfileCard">
+                <div class="official-profile-header">
+                    <span class="official-profile-title">
+                        <i class="fas fa-user-shield" aria-hidden="true"></i>
+                        <span>Dam Official Profile Access</span>
+                    </span>
+                    <span class="official-count-badge" id="officialUserBadge" data-has-users="false">0 registered</span>
+                </div>
+                <p class="official-profile-status" id="officialSplashStatus">Not signed in. Sign up with email and password to send dam alerts.</p>
+                <div class="official-profile-actions">
+                    <button type="button" id="officialAuthOpenBtn" class="btn-outline"><i class="fas fa-user-lock"></i> Sign up / Log in</button>
+                    <button type="button" id="officialLogoutBtn" class="btn-outline" style="display:none;"><i class="fas fa-sign-out-alt"></i> Log out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="official-auth-modal" id="officialAuthModal" hidden>
+    <div class="official-auth-card" role="dialog" aria-modal="true" aria-labelledby="officialAuthTitle">
+        <div class="official-auth-header">
+            <h3 id="officialAuthTitle">Dam Official Access</h3>
+            <button type="button" class="official-auth-close" id="officialAuthClose" aria-label="Close official access window">X</button>
+        </div>
+        <p class="official-auth-subtitle">Create an official account or log in to unlock dam alert controls.</p>
+        <div class="official-auth-tabs">
+            <button type="button" id="officialTabSignup">Sign up</button>
+            <button type="button" id="officialTabLogin" class="btn-outline">Log in</button>
+        </div>
+        <form id="officialSignupForm">
+            <div class="input-row">
+                <label for="officialSignupEmail">Official email</label>
+                <input type="email" id="officialSignupEmail" placeholder="name@department.gov.in" required>
+            </div>
+            <div class="input-row">
+                <label for="officialSignupPassword">Password</label>
+                <input type="password" id="officialSignupPassword" placeholder="Minimum 6 characters" required>
+            </div>
+            <button type="submit"><i class="fas fa-user-plus"></i> Create official account</button>
+        </form>
+        <form id="officialLoginForm" hidden>
+            <div class="input-row">
+                <label for="officialLoginEmail">Official email</label>
+                <input type="email" id="officialLoginEmail" placeholder="name@department.gov.in" required>
+            </div>
+            <div class="input-row">
+                <label for="officialLoginPassword">Password</label>
+                <input type="password" id="officialLoginPassword" placeholder="Enter your password" required>
+            </div>
+            <button type="submit"><i class="fas fa-sign-in-alt"></i> Enter dashboard</button>
+        </form>
+        <div id="officialAuthMessage" class="official-auth-message"></div>
+    </div>
+</div>
+
+<nav class="top-nav">
+    <a href="#" class="nav-brand">Rural Guards</a>
+    <div class="nav-links">
+        <a href="#tools" data-i18n="navTools">Tools</a>
+        <a href="#weather-section" data-i18n="navWeather">Weather</a>
+        <a href="#damAlertCard" data-i18n="navSafety">Safety</a>
+    </div>
+    <div class="nav-actions">
+        <select id="languageSelect" class="lang-select" aria-label="Change page language">
+            <option value="en">English</option>
+            <option value="te">తెలుగు</option>
+            <option value="hi">हिंदी</option>
+        </select>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false">
+            <i class="fas fa-moon" aria-hidden="true"></i>
+            <span>Light theme</span>
+        </button>
+        <a href="#tools" class="nav-cta" data-i18n="navGetStarted">Get started</a>
+    </div>
+</nav>
+
+<main>
+<div class="layout-wrapper">
+
+<!-- Sidebar with Government Schemes -->
+<aside class="sidebar" id="schemesCard">
+    <h2><span class="card-icon-w"><i class="fas fa-landmark"></i></span><span class="card-title-text">Govt Schemes</span></h2>
+    <div class="scheme-block">
+        <h3><i class="fas fa-rupee-sign"></i> PM-KISAN</h3>
+        <p>Direct income support for eligible farmer families. Amount is credited in installments to linked bank account after registration and verification.</p>
+        <a href="https://pmkisan.gov.in" target="_blank" rel="noopener noreferrer">Official PM-KISAN portal</a>
+    </div>
+    <div class="scheme-block">
+        <h3><i class="fas fa-shield-alt"></i> PMFBY (Crop Insurance)</h3>
+        <p>Protects crops against losses from drought, flood, cyclone, pest attack, and major weather events. Useful for seasonal risk reduction.</p>
+        <a href="https://pmfby.gov.in" target="_blank" rel="noopener noreferrer">Check crop insurance details</a>
+    </div>
+    <div class="scheme-block">
+        <h3><i class="fas fa-credit-card"></i> Kisan Credit Card</h3>
+        <p>Provides short-term credit for crop cultivation, allied activities, and selected fishery needs with lower interest compared to many informal options.</p>
+        <a href="https://www.india.gov.in/spotlight/kisan-credit-card-scheme" target="_blank" rel="noopener noreferrer">Learn about KCC</a>
+    </div>
+    <div class="scheme-block">
+        <h3><i class="fas fa-fish"></i> PM Matsya Sampada Yojana</h3>
+        <p>Support for fish seed, pond development, cold chain, and fish value chain activities. Relevant for fishermen and fish farmers expanding income.</p>
+        <a href="https://dof.gov.in/pmmsy" target="_blank" rel="noopener noreferrer">Explore fisheries support</a>
+    </div>
+    <div class="scheme-block">
+        <h3><i class="fas fa-hard-hat"></i> Fishermen Welfare & Safety</h3>
+        <p>State fisheries departments provide accident support, safety-net assistance, and seasonal welfare benefits based on local eligibility rules.</p>
+        <a href="https://apfisheries.ap.gov.in" target="_blank" rel="noopener noreferrer">Visit Andhra Pradesh Fisheries</a>
+    </div>
+    <p class="scheme-note">For latest eligibility and documents, visit local Rythu Bharosa Kendra, Agriculture Office, Fisheries Office, or official state portals.</p>
+</aside>
+
+<!-- Main Content -->
+<div class="page-main">
+<section class="hero-emergent">
+    <p class="hero-kicker">Andhra Pradesh · Rural toolkit</p>
+    <h1 class="hero-headline">
+        <span class="hero-line">Protect crops &amp; communities</span>
+        <span class="hero-gradient">with AI &amp; real-time tools.</span>
+    </h1>
+    <p class="hero-lead" data-i18n="heroLead">From disease detection to weather alerts and dam safety — one place for farmers and fishermen.</p>
+    <div class="hero-actions">
+        <a href="#tools" class="btn-hero-primary" data-i18n="heroExploreTools">Explore tools</a>
+        <a href="#weather-section" class="btn-hero-secondary" data-i18n="heroCheckWeather">Check weather</a>
+    </div>
+    <div class="hero-stat">
+        <span class="hero-stat-dot" aria-hidden="true"></span>
+        <span>Built for real communities in Andhra Pradesh</span>
+    </div>
+</section>
+
+<section id="tools" class="section-tools">
+    <h2 class="section-heading" data-i18n="sectionHeading">What can Rural Guards do for you?</h2>
+    <p class="section-lead" data-i18n="sectionLead">From field to coast — simple tools that run in your browser.</p>
+
+    <div class="bento-grid">
+
+    <!-- Disease Detection -->
+    <div class="card">
+        <h2><span class="card-icon-w"><i class="fas fa-search"></i></span><span class="card-title-text" data-i18n="cardDiseaseTitle">Disease Detection</span></h2>
+        <p data-i18n="cardDiseaseDesc">Upload a crop image to scan for diseases and get treatment advice.</p>
+        <select id="cropTypeSelect" class="crop-type-button" aria-label="Crop type for disease detection">
+            <option value="all">Crop Type: All (auto)</option>
+            <option value="apple">Apple</option>
+            <option value="blueberry">Blueberry</option>
+            <option value="cherry">Cherry</option>
+            <option value="corn">Maize / Corn</option>
+            <option value="grape">Grape</option>
+            <option value="orange">Orange</option>
+            <option value="peach">Peach</option>
+            <option value="pepper_bell">Pepper (Bell)</option>
+            <option value="potato">Potato</option>
+            <option value="raspberry">Raspberry</option>
+            <option value="soybean">Soybean</option>
+            <option value="squash">Squash</option>
+            <option value="tomato">Tomato</option>
+        </select>
+        <input type="file" id="imageInput" accept="image/*">
+        <button onclick="uploadImage()"><i class="fas fa-upload"></i> <span data-i18n="scanCropBtn">Scan Crop</span></button>
+        <div id="result">Results will appear here...</div>
+    </div>
+
+    <!-- Smart Advisory -->
+    <div class="card">
+        <h2><span class="card-icon-w"><i class="fas fa-lightbulb"></i></span><span class="card-title-text" data-i18n="cardAdvisoryTitle">Smart Advisory</span></h2>
+        <p data-i18n="cardAdvisoryDesc">Get personalized farming advice based on weather and conditions.</p>
+        <button onclick="getAdvice()"><i class="fas fa-info-circle"></i> <span data-i18n="getAdviceBtn">Get Advice</span></button>
+        <div id="advice"></div>
+    </div>
+
+    <!-- Nearby Sellers -->
+    <div class="card">
+        <h2><span class="card-icon-w"><i class="fas fa-store"></i></span><span class="card-title-text" data-i18n="cardSellersTitle">Nearby Sellers</span></h2>
+        <p data-i18n="cardSellersDesc">Find seed, fertilizer, and fish sellers near your current location.</p>
+        <div id="nearbySellerStatus" class="small-note" data-i18n="nearbySellerLoading">Loading nearby seller numbers from the map...</div>
+        <div id="nearbySellerList" class="seller-lines sellers-dynamic"></div>
+        <button type="button" class="btn-outline" onclick="refreshNearbySellers()"><i class="fas fa-rotate"></i> <span data-i18n="refreshSellersBtn">Refresh sellers</span></button>
+        <button type="button" class="btn-outline" onclick="refreshLocationNow()"><i class="fas fa-location-crosshairs"></i> <span>Refresh GPS</span></button>
+    </div>
+
+    <!-- Weather Alert -->
+    <div class="card" id="weather-section">
+        <h2><span class="card-icon-w"><i class="fas fa-cloud-sun"></i></span><span class="card-title-text" data-i18n="cardWeatherTitle">Weather Alert</span></h2>
+        <p data-i18n="cardWeatherDesc">Uses your current location when you allow it in the browser; otherwise shows weather for Andhra Pradesh (default).</p>
+        <button onclick="weatherAlert()"><i class="fas fa-eye"></i> <span data-i18n="checkWeatherTipsBtn">Check Weather &amp; Tips</span></button>
+        <button type="button" class="btn-outline" id="sendWeatherAlertBtn" onclick="sendWeatherAlertSMS()" hidden><i class="fas fa-paper-plane"></i> Send Weather Alert (SMS)</button>
+        <p class="small-note" id="sendWeatherAlertHint">Visible only for signed-in dam officials.</p>
+        <button type="button" class="btn-outline" onclick="refreshLocationNow()"><i class="fas fa-location-crosshairs"></i> <span>Refresh GPS</span></button>
+        <div id="weather"></div>
+    </div>
+
+    <!-- Nearby Dealers Map -->
+    <div class="card" id="dealersMapCard">
+        <h2><span class="card-icon-w"><i class="fas fa-map-marked-alt"></i></span><span class="card-title-text" data-i18n="cardMapTitle">Nearby Dealers Map</span></h2>
+        <p data-i18n="cardMapDesc">Find nearby seed, fertilizer, and fish dealers around your current location.</p>
+        <div class="map-actions">
+            <button type="button" class="btn-outline" onclick="toggleDealersMapFullscreen()"><i class="fas fa-expand"></i> <span data-i18n="mapFullscreenBtn">Full screen</span></button>
+            <button type="button" class="btn-outline" onclick="focusNearestDealerDirections()"><i class="fas fa-route"></i> <span data-i18n="mapDirectionsBtn">Directions</span></button>
+            <button type="button" class="btn-outline" onclick="toggleDealerRouteTracking()" id="dealerRouteTrackingBtn"><i class="fas fa-location-crosshairs"></i> <span data-i18n="mapStartTrackingBtn">Start tracking</span></button>
+        </div>
+        <div id="dealersMap" class="dealers-map"></div>
+        <div class="map-legend">
+            <span class="map-chip"><span>🌱</span><span>Seed</span></span>
+            <span class="map-chip"><span>🧪</span><span>Fertilizer</span></span>
+            <span class="map-chip"><span>🐟</span><span>Fish</span></span>
+        </div>
+        <div id="dealersRouteStatus" class="small-note" data-i18n="dealersRouteHint">Tap a dealer marker for directions or route tracking.</div>
+        <div id="dealersMapStatus" data-i18n="dealersMapLocating">Locating nearby dealers...</div>
+    </div>
+
+    <!-- Dam Alert -->
+    <div class="card card-feature-wide" id="damAlertCard">
+        <h2><span class="card-icon-w"><i class="fas fa-exclamation-triangle"></i></span><span class="card-title-text">Dam Alert</span></h2>
+        <p>Real-time voice notifications and automated health checks for dam release events.</p>
+        <div class="official-guard">
+            <p id="officialDamAccessText">Official sign-in required to send alerts.</p>
+            <button type="button" class="btn-outline" id="officialDamAccessBtn"><i class="fas fa-user-shield"></i> Official Sign up / Log in</button>
+        </div>
+        <div class="input-row" id="publicRegisterBlock">
+            <label for="publicRegisterPhone">Register phone number for future dam alerts:</label>
+            <input type="text" id="publicRegisterPhone" class="phone-normalize" placeholder="9876543210">
+            <button type="button" id="registerPhoneBtn"><i class="fas fa-user-plus"></i> Register Phone Number</button>
+            <p class="small-note" id="publicRegisterStatus">Register once. Dam officials can send alerts to this number during emergencies.</p>
+        </div>
+        <div class="input-row" id="registeredUsersPanel" hidden>
+            <label>Registered users available to officials:</label>
+            <div id="registeredUsersPreview" class="seller-lines"></div>
+        </div>
+        <div id="officialAlertControls" hidden>
+        <div class="input-row">
+            <label for="damLocation">Dam name / location:</label>
+            <input type="text" id="damLocation" placeholder="Example: Nagarjuna Sagar" value="Nagarjuna Sagar" data-official-control>
+        </div>
+        <div class="input-row">
+            <label for="alertPhone">Phone numbers (for SMS/call):</label>
+            <div class="phone-list" id="phoneList">
+                <div class="phone-row">
+                    <input type="text" id="alertPhone" class="alert-phone" placeholder="9876543210" data-official-control>
+                </div>
+            </div>
+            <button type="button" class="btn-outline" id="addPhoneBtn" data-official-control><i class="fas fa-plus"></i> Add number</button>
+            <p class="small-note">Use Add number to alert multiple recipients at once.</p>
+        </div>
+        <div class="input-row">
+            <label for="voiceSelect">Voice selection:</label>
+            <select id="voiceSelect" class="input-select" data-official-control>
+                <option value="">Auto-detect Telugu first (fallback to English)</option>
+            </select>
+        </div>
+        <div class="dam-actions">
+            <button type="button" onclick="damAlert()" data-official-control><i class="fas fa-phone-volume"></i> Get voice alert (call + SMS)</button>
+            <button type="button" class="btn-outline" onclick="damAlertSMS()" data-official-control><i class="fas fa-sms"></i> Simulate SMS</button>
+            <button type="button" class="btn-outline" onclick="toggleAutoDamWatcher()" id="toggleDamWatcher" data-official-control><i class="fas fa-clock"></i> Auto watch</button>
+        </div>
+        </div>
+        <div id="damStatus">Status: idle</div>
+    </div>
+
+    </div>
+</section>
+
+</div>
+</div>
+</main>
+
+<footer class="footer-emergent">
+    <div class="footer-grid">
+        <div>
+            <p class="footer-brand">Rural Guards</p>
+            <p class="footer-tag">AI-assisted crop care, live weather by location, and safety tools for rural Andhra Pradesh.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Product</h4>
+            <a href="#tools">All tools</a>
+            <a href="#weather-section">Weather</a>
+        </div>
+        <div class="footer-col">
+            <h4>Safety</h4>
+            <a href="#damAlertCard">Dam alerts</a>
+            <a href="/api/health">API status</a>
+        </div>
+    </div>
+    <p class="footer-bottom">&copy; 2026 Rural Guards · Made for farmers &amp; fishermen</p>
+</footer>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+
+console.log("JS WORKING");
+
+const OFFICIAL_ACCOUNT_KEY = "rural-guards-official-account";
+const OFFICIAL_SESSION_KEY = "rural-guards-official-session";
+const REGISTERED_USERS_KEY = "rural-guards-registered-users";
+let officialAuthMode = "signup";
+
+function getRegisteredUsers() {
+    try {
+        const raw = localStorage.getItem(REGISTERED_USERS_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.filter(function (item) {
+            return item && typeof item.phone === "string" && item.phone.trim();
+        });
+    } catch (error) {
+        return [];
+    }
+}
+
+function saveRegisteredUsers(users) {
+    localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(users));
+}
+
+function updateOfficialUserBadge() {
+    const badge = document.getElementById("officialUserBadge");
+    if (!badge) return;
+
+    const count = getRegisteredUsers().length;
+    const label = count === 1 ? "1 registered" : `${count} registered`;
+    badge.textContent = label;
+    badge.dataset.hasUsers = count > 0 ? "true" : "false";
+}
+
+function renderRegisteredUsersPreview() {
+    const panel = document.getElementById("registeredUsersPanel");
+    const preview = document.getElementById("registeredUsersPreview");
+    if (!panel || !preview) return;
+
+    const users = getRegisteredUsers();
+    if (!users.length) {
+        preview.innerHTML = '<p><i class="fas fa-users"></i> No registered users yet.</p>';
+        panel.hidden = false;
+        return;
+    }
+
+    preview.innerHTML = users
+        .map(function (user) {
+            return `<p><i class="fas fa-phone"></i> ${user.phone}</p>`;
+        })
+        .join("");
+    panel.hidden = false;
+}
+
+function syncRegisteredUsersToPhoneList() {
+    const list = document.getElementById("phoneList");
+    if (!list) return;
+
+    const users = getRegisteredUsers();
+    if (!users.length) return;
+
+    list.innerHTML = "";
+    users.forEach(function (user) {
+        addAlertPhoneField(user.phone);
+    });
+}
+
+function registerPublicPhone() {
+    const input = document.getElementById("publicRegisterPhone");
+    const status = document.getElementById("publicRegisterStatus");
+    if (!input || !status) return;
+
+    const phone = normalizePhoneNumber(input.value);
+    input.value = phone;
+
+    if (!phone) {
+        status.textContent = "Please enter a valid phone number.";
+        return;
+    }
+
+    const users = getRegisteredUsers();
+    const exists = users.some(function (user) {
+        return user.phone === phone;
+    });
+
+    if (exists) {
+        status.textContent = "This number is already registered.";
+        return;
+    }
+
+    users.push({ phone: phone, addedAt: new Date().toISOString() });
+    saveRegisteredUsers(users);
+    updateOfficialUserBadge();
+    status.textContent = "Phone number registered successfully.";
+    renderRegisteredUsersPreview();
+
+    if (isOfficialLoggedIn()) {
+        syncRegisteredUsersToPhoneList();
+    }
+}
+
+function getOfficialAccount() {
+    try {
+        const raw = localStorage.getItem(OFFICIAL_ACCOUNT_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed.email !== "string" || typeof parsed.password !== "string") {
+            return null;
+        }
+        return parsed;
+    } catch (error) {
+        return null;
+    }
+}
+
+function isOfficialLoggedIn() {
+    return localStorage.getItem(OFFICIAL_SESSION_KEY) === "true";
+}
+
+function setOfficialAuthMessage(message, type) {
+    const msg = document.getElementById("officialAuthMessage");
+    if (!msg) return;
+    msg.textContent = message || "";
+    msg.classList.remove("success", "error");
+    if (type) msg.classList.add(type);
+}
+
+function switchOfficialAuthMode(mode) {
+    officialAuthMode = mode === "login" ? "login" : "signup";
+
+    const signupForm = document.getElementById("officialSignupForm");
+    const loginForm = document.getElementById("officialLoginForm");
+    const signupTab = document.getElementById("officialTabSignup");
+    const loginTab = document.getElementById("officialTabLogin");
+
+    if (!signupForm || !loginForm || !signupTab || !loginTab) return;
+
+    const signupActive = officialAuthMode === "signup";
+    signupForm.hidden = !signupActive;
+    loginForm.hidden = signupActive;
+    signupTab.classList.toggle("btn-outline", !signupActive);
+    loginTab.classList.toggle("btn-outline", signupActive);
+    setOfficialAuthMessage("");
+}
+
+function openOfficialAuthModal(mode) {
+    const modal = document.getElementById("officialAuthModal");
+    if (!modal) return;
+    switchOfficialAuthMode(mode || officialAuthMode);
+    modal.hidden = false;
+}
+
+function closeOfficialAuthModal() {
+    const modal = document.getElementById("officialAuthModal");
+    if (!modal) return;
+    modal.hidden = true;
+    setOfficialAuthMessage("");
+}
+
+function updateOfficialAccessUI() {
+    const loggedIn = isOfficialLoggedIn();
+    const account = getOfficialAccount();
+    const splashStatus = document.getElementById("officialSplashStatus");
+    const splashLoginBtn = document.getElementById("officialAuthOpenBtn");
+    const splashLogoutBtn = document.getElementById("officialLogoutBtn");
+    const damAccessText = document.getElementById("officialDamAccessText");
+    const damAccessBtn = document.getElementById("officialDamAccessBtn");
+    const publicRegisterBlock = document.getElementById("publicRegisterBlock");
+    const officialAlertControls = document.getElementById("officialAlertControls");
+    const registeredUsersPanel = document.getElementById("registeredUsersPanel");
+    const weatherAlertBtn = document.getElementById("sendWeatherAlertBtn");
+    const weatherAlertHint = document.getElementById("sendWeatherAlertHint");
+    const officialControls = document.querySelectorAll("[data-official-control]");
+
+    if (loggedIn && account) {
+        if (splashStatus) splashStatus.textContent = `Signed in as ${account.email}. You can send dam alerts now.`;
+        if (damAccessText) damAccessText.textContent = `Official access granted: ${account.email}`;
+        if (splashLoginBtn) splashLoginBtn.style.display = "none";
+        if (splashLogoutBtn) splashLogoutBtn.style.display = "inline-flex";
+        if (damAccessBtn) {
+            damAccessBtn.textContent = "Official profile active";
+            damAccessBtn.disabled = true;
+        }
+        if (publicRegisterBlock) publicRegisterBlock.hidden = true;
+        if (officialAlertControls) officialAlertControls.hidden = false;
+        if (weatherAlertBtn) weatherAlertBtn.hidden = false;
+        if (weatherAlertHint) weatherAlertHint.textContent = "Signed in as dam official: send current weather + advice via SMS.";
+        renderRegisteredUsersPreview();
+        syncRegisteredUsersToPhoneList();
+        updateOfficialUserBadge();
+    } else {
+        if (splashStatus) splashStatus.textContent = "Not signed in. Sign up with email and password to send dam alerts.";
+        if (damAccessText) damAccessText.textContent = "Official sign-in required to send alerts.";
+        if (splashLoginBtn) splashLoginBtn.style.display = "inline-flex";
+        if (splashLogoutBtn) splashLogoutBtn.style.display = "none";
+        if (damAccessBtn) {
+            damAccessBtn.innerHTML = '<i class="fas fa-user-shield"></i> Official Sign up / Log in';
+            damAccessBtn.disabled = false;
+        }
+        if (publicRegisterBlock) publicRegisterBlock.hidden = false;
+        if (officialAlertControls) officialAlertControls.hidden = true;
+        if (weatherAlertBtn) weatherAlertBtn.hidden = true;
+        if (weatherAlertHint) weatherAlertHint.textContent = "Visible only for signed-in dam officials.";
+        if (registeredUsersPanel) registeredUsersPanel.hidden = true;
+        updateOfficialUserBadge();
+    }
+
+    officialControls.forEach(function (control) {
+        control.disabled = !loggedIn;
+    });
+}
+
+function ensureOfficialAccess() {
+    if (isOfficialLoggedIn()) return true;
+    setDamStatus("Official sign-in required. Please use Dam Official Sign up / Log in.", false);
+    openOfficialAuthModal("login");
+    return false;
+}
+
+function initOfficialAccess() {
+    const openBtn = document.getElementById("officialAuthOpenBtn");
+    const logoutBtn = document.getElementById("officialLogoutBtn");
+    const damOpenBtn = document.getElementById("officialDamAccessBtn");
+    const closeBtn = document.getElementById("officialAuthClose");
+    const signupTab = document.getElementById("officialTabSignup");
+    const loginTab = document.getElementById("officialTabLogin");
+    const signupForm = document.getElementById("officialSignupForm");
+    const loginForm = document.getElementById("officialLoginForm");
+
+    if (openBtn) {
+        openBtn.addEventListener("click", function () {
+            openOfficialAuthModal("signup");
+        });
+    }
+
+    if (damOpenBtn) {
+        damOpenBtn.addEventListener("click", function () {
+            openOfficialAuthModal("login");
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+            localStorage.removeItem(OFFICIAL_SESSION_KEY);
+            updateOfficialAccessUI();
+            setDamStatus("Official profile logged out.", false);
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", closeOfficialAuthModal);
+    }
+
+    if (signupTab) {
+        signupTab.addEventListener("click", function () {
+            switchOfficialAuthMode("signup");
+        });
+    }
+
+    if (loginTab) {
+        loginTab.addEventListener("click", function () {
+            switchOfficialAuthMode("login");
+        });
+    }
+
+    if (signupForm) {
+        signupForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const email = (document.getElementById("officialSignupEmail").value || "").trim().toLowerCase();
+            const password = document.getElementById("officialSignupPassword").value || "";
+
+            if (!email || !email.includes("@")) {
+                setOfficialAuthMessage("Enter a valid official email.", "error");
+                return;
+            }
+
+            if (password.length < 6) {
+                setOfficialAuthMessage("Password must be at least 6 characters.", "error");
+                return;
+            }
+
+            localStorage.setItem(OFFICIAL_ACCOUNT_KEY, JSON.stringify({ email: email, password: password }));
+            localStorage.setItem(OFFICIAL_SESSION_KEY, "true");
+            setOfficialAuthMessage("Official account created. Access granted.", "success");
+            updateOfficialAccessUI();
+            setTimeout(closeOfficialAuthModal, 550);
+        });
+    }
+
+    if (loginForm) {
+        loginForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const account = getOfficialAccount();
+            const email = (document.getElementById("officialLoginEmail").value || "").trim().toLowerCase();
+            const password = document.getElementById("officialLoginPassword").value || "";
+
+            if (!account) {
+                setOfficialAuthMessage("No official account found. Please sign up first.", "error");
+                return;
+            }
+
+            if (email === account.email && password === account.password) {
+                localStorage.setItem(OFFICIAL_SESSION_KEY, "true");
+                setOfficialAuthMessage("Login successful. Access granted.", "success");
+                updateOfficialAccessUI();
+                setTimeout(closeOfficialAuthModal, 450);
+                return;
+            }
+
+            setOfficialAuthMessage("Incorrect email or password.", "error");
+        });
+    }
+
+    const modal = document.getElementById("officialAuthModal");
+    if (modal) {
+        modal.addEventListener("click", function (event) {
+            if (event.target === modal) closeOfficialAuthModal();
+        });
+    }
+
+    switchOfficialAuthMode("signup");
+    updateOfficialAccessUI();
+}
+
+function createPhoneField(initialValue) {
+    const row = document.createElement("div");
+    row.className = "phone-row";
+    row.innerHTML = '<input type="text" class="alert-phone" placeholder="9876543210" data-official-control><button type="button" class="btn-outline remove-phone" data-official-control><i class="fas fa-minus"></i></button>';
+
+    const input = row.querySelector("input");
+    const removeBtn = row.querySelector("button");
+    input.value = initialValue || "+91";
+
+    input.addEventListener("blur", function () {
+        input.value = normalizePhoneNumber(input.value);
+    });
+
+    removeBtn.addEventListener("click", function () {
+        const list = document.getElementById("phoneList");
+        if (!list) return;
+        const rows = list.querySelectorAll(".phone-row");
+        if (rows.length <= 1) {
+            setDamStatus("At least one phone number is required.", false);
+            return;
+        }
+        row.remove();
+    });
+
+    return row;
+}
+
+function addAlertPhoneField(defaultValue) {
+    const list = document.getElementById("phoneList");
+    if (!list) return;
+    list.appendChild(createPhoneField(defaultValue || "+91"));
+}
+
+function initPhoneList() {
+    const list = document.getElementById("phoneList");
+    const addBtn = document.getElementById("addPhoneBtn");
+    const publicRegisterBtn = document.getElementById("registerPhoneBtn");
+    const publicRegisterInput = document.getElementById("publicRegisterPhone");
+
+    if (!list || !addBtn) return;
+
+    const firstInput = list.querySelector(".alert-phone");
+    if (firstInput) {
+        if (!firstInput.value || !firstInput.value.trim()) {
+            firstInput.value = "+91";
+        }
+        firstInput.addEventListener("blur", function () {
+            firstInput.value = normalizePhoneNumber(firstInput.value);
+        });
+    }
+
+    addBtn.addEventListener("click", function () {
+        addAlertPhoneField("+91");
+    });
+
+    if (publicRegisterBtn) {
+        publicRegisterBtn.addEventListener("click", registerPublicPhone);
+    }
+
+    if (publicRegisterInput) {
+        publicRegisterInput.addEventListener("blur", function () {
+            publicRegisterInput.value = normalizePhoneNumber(publicRegisterInput.value);
+        });
+    }
+}
+
+function getAlertPhoneNumbers() {
+    const inputs = Array.from(document.querySelectorAll(".alert-phone"));
+    const normalized = inputs
+        .map(function (input) {
+            const phone = normalizePhoneNumber(input.value);
+            input.value = phone;
+            return phone;
+        })
+        .filter(Boolean);
+
+    return Array.from(new Set(normalized));
+}
+
+function setTheme(theme) {
+    var nextTheme = theme === "light" ? "light" : "dark";
+
+    document.documentElement.dataset.theme = nextTheme;
+
+    try {
+        localStorage.setItem("rural-guards-theme", nextTheme);
+    } catch (error) {
+        // Ignore persistence failures in restricted browsers.
+    }
+
+    updateThemeToggle();
+}
+
+function updateThemeToggle() {
+    var themeToggle = document.getElementById("themeToggle");
+
+    if (!themeToggle) return;
+
+    var isLight = document.documentElement.dataset.theme === "light";
+    var icon = themeToggle.querySelector("i");
+    var label = themeToggle.querySelector("span");
+
+    themeToggle.setAttribute("aria-pressed", isLight ? "true" : "false");
+
+    if (icon) {
+        icon.className = isLight ? "fas fa-sun" : "fas fa-moon";
+    }
+
+    if (label) {
+        var lang = getCurrentLanguage();
+        var dictionary = LANGUAGE_DICTIONARY[lang] || LANGUAGE_DICTIONARY.en;
+        label.textContent = isLight ? dictionary.themeLabelDark : dictionary.themeLabelLight;
+    }
+}
+
+function initThemeToggle() {
+    var themeToggle = document.getElementById("themeToggle");
+
+    if (!themeToggle) return;
+
+    updateThemeToggle();
+
+    themeToggle.addEventListener("click", function () {
+        var isLight = document.documentElement.dataset.theme === "light";
+        setTheme(isLight ? "dark" : "light");
+    });
+}
+
+// ===== SPLASH SCREEN LOGIC =====
+function initSplashScreen() {
+    const splashOverlay = document.getElementById("splashOverlay");
+    const splashCta = document.getElementById("splashCta");
+    const navCta = document.querySelector(".nav-cta");
+    
+    if (!splashCta || !splashOverlay) return;
+    
+    splashCta.addEventListener("click", function (e) {
+        e.preventDefault();
+        
+        // Mark button as animating and start fading out splash overlay
+        splashCta.classList.add("animating");
+        splashOverlay.classList.add("hide");
+        
+        // Get button position on screen
+        const splashRect = splashCta.getBoundingClientRect();
+        const splashCenterX = splashRect.left + splashRect.width / 2;
+        const splashCenterY = splashRect.top + splashRect.height / 2;
+        
+        // Get nav CTA target position
+        const navCtaRect = navCta.getBoundingClientRect();
+        const navCtaCenterX = navCtaRect.left + navCtaRect.width / 2;
+        const navCtaCenterY = navCtaRect.top + navCtaRect.height / 2;
+        
+        // Calculate distance to travel
+        const deltaX = navCtaCenterX - splashCenterX;
+        const deltaY = navCtaCenterY - splashCenterY;
+        const scale = navCtaRect.width / splashRect.width;
+        
+        // Animate button movement
+        const duration = 700; // ms
+        const startTime = performance.now();
+        
+        function animate(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Easing function (cubic-bezier)
+            const ease = progress < 0.5 
+                ? 2 * progress * progress 
+                : -1 + 4 * progress - 2 * progress * progress;
+            
+            splashCta.style.transform = `translate(calc(-50% + ${deltaX * ease}px), calc(-50% + ${deltaY * ease}px)) scale(${1 - (1 - scale) * ease})`;
+            splashCta.style.opacity = 1 - progress;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                splashCta.style.display = "none";
+                
+                // Show nav CTA button
+                navCta.classList.add("show");
+                
+                // Scroll to main content
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                }, 100);
+            }
+        }
+        
+        requestAnimationFrame(animate);
+    });
+}
+
+// Initialize splash screen on page load
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSplashScreen);
+} else {
+    initSplashScreen();
+}
+
+window.addEventListener("DOMContentLoaded", initThemeToggle);
+
+window.addEventListener("DOMContentLoaded", initDealersMap);
+
+document.addEventListener("DOMContentLoaded", function () {
+    var cards = document.querySelectorAll(".card");
+    if (!("IntersectionObserver" in window)) {
+        cards.forEach(function (c) {
+            c.classList.add("in-view");
+        });
+        return;
+    }
+    var io = new IntersectionObserver(
+        function (entries) {
+            entries.forEach(function (e) {
+                if (e.isIntersecting) {
+                    e.target.classList.add("in-view");
+                    io.unobserve(e.target);
+                }
+            });
+        },
+        { threshold: 0.06, rootMargin: "0px 0px -32px 0px" }
+    );
+    cards.forEach(function (c) {
+        io.observe(c);
+    });
+});
+
+/* =========================
+   IMAGE UPLOAD FUNCTION
+========================= */
+function uploadImage() {
+    console.log("CLICKED");
+
+    let file = document.getElementById("imageInput").files[0];
+    console.log("File selected:", file);
+
+    let resultDiv = document.getElementById("result");
+
+    if (!file) {
+        console.log("No file selected");
+        resultDiv.innerHTML = "Please select an image first!";
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("image", file);
+    const cropTypeSelect = document.getElementById("cropTypeSelect");
+    const cropType = cropTypeSelect ? cropTypeSelect.value : "all";
+    formData.append("cropType", cropType);
+    console.log("FormData created");
+
+    resultDiv.innerHTML = '<span class="loading-text"><span class="spinner"></span> Analyzing crop disease...</span>';
+    resultDiv.classList.add('loading');
+    console.log("About to fetch");
+
+    // Use the backend server directly (not Live Server port 5500)
+    fetch("/predict", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => {
+        console.log("Fetch response status:", res.status);
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+    })
+    .then(data => {
+        console.log("Parsed data:", data);
+        resultDiv.classList.remove('loading');
+        if (data.error) {
+            resultDiv.classList.add('error');
+            resultDiv.classList.remove('success');
+            resultDiv.innerHTML = `<span class="error-badge">✕</span> Error: ${data.error}`;
+        } else {
+            resultDiv.classList.remove('error');
+            resultDiv.classList.add('success');
+            const sanitizedResult = String(data.result || "")
+                .split("\n")
+                .filter(line => !/^\s*Confidence\s*:/i.test(line))
+                .filter(line => !/^\s*Next\s*candidate\s*:/i.test(line))
+                .join("\n");
+            // Format result with better styling
+            let formattedResult = sanitizedResult
+                .replace(/Disease:/g, '<strong>🦠 Disease:</strong>')
+                .replace(/Solution:/g, '<strong>💊 Solution:</strong>')
+                .replace(/Urgency:/g, '<strong>⚠️ Urgency:</strong>')
+                .replace(/Note:/g, '<strong>ℹ️ Note:</strong>')
+                .replace(/\n/g, '<br>');
+            resultDiv.innerHTML = `<span class="success-badge">✓</span> ${formattedResult}`;
+        }
+    })
+    .catch(err => {
+        console.log("Fetch error:", err);
+        resultDiv.classList.remove('loading');
+        resultDiv.classList.add('error');
+        resultDiv.innerHTML = `<span class="error-badge">✕</span> Error: ${err.message}. Check console for details.`;
+    });
+}
+
+/* =========================
+   ADVISORY
+========================= */
+function buildWeatherAdvice(data) {
+    const tips = [];
+    const temp = Number(data && data.temperature);
+    const humidity = Number(data && data.humidity);
+    const wind = Number(data && data.windSpeed);
+    const description = String((data && data.description) || "").toLowerCase();
+
+    if (Number.isFinite(temp) && temp >= 34) {
+        tips.push("🌡️ High heat expected: irrigate early morning or evening to reduce evaporation.");
+        tips.push("🧑‍🌾 Avoid pesticide spraying in peak afternoon heat to protect leaves.");
+    } else if (Number.isFinite(temp) && temp <= 20) {
+        tips.push("🌤️ Cooler weather: reduce over-irrigation and watch seedlings for slow growth.");
+    }
+
+    if (Number.isFinite(humidity) && humidity >= 80) {
+        tips.push("💧 High humidity: watch for fungal diseases and improve plant airflow.");
+    } else if (Number.isFinite(humidity) && humidity <= 35) {
+        tips.push("🌾 Low humidity: use mulch or drip irrigation to hold moisture longer.");
+    }
+
+    if (Number.isFinite(wind) && wind >= 25) {
+        tips.push("🌬️ Strong wind: secure covers and avoid foliar spray drift.");
+    }
+
+    if (/rain|shower|storm|thunder|drizzle/.test(description)) {
+        tips.push("🌧️ Rain expected: pause fertilizer broadcasting and improve drainage.");
+        tips.push("🐟 Fishermen: check harbor and sea advisories before going out.");
+    }
+
+    if (/clear|sunny/.test(description)) {
+        tips.push("☀️ Clear weather: good for drying produce and planning field work.");
+    }
+
+    if (!tips.length) {
+        tips.push("🌱 Use the live weather conditions to decide irrigation, spraying, and harvesting timing.");
+        tips.push("📍 Check weather again before field work if conditions change quickly.");
+    }
+
+    return tips;
+}
+
+function fetchWeatherData(lat, lon) {
+    let url = "/weather";
+    if (typeof lat === "number" && typeof lon === "number" && !Number.isNaN(lat) && !Number.isNaN(lon)) {
+        url = "/weather?lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lon);
+    }
+
+    return fetch(url).then(function (res) {
+        if (!res.ok) {
+            throw new Error("HTTP error! status: " + res.status);
+        }
+        return res.json();
+    });
+}
+
+function getAdvice() {
+    let adviceDiv = document.getElementById("advice");
+    adviceDiv.innerHTML = '<span class="loading-text"><span class="spinner"></span> Getting smart advice...</span>';
+    adviceDiv.classList.add('loading');
+    adviceDiv.classList.remove('error', 'success');
+
+    function renderAdvice(data) {
+        adviceDiv.classList.remove('loading');
+        adviceDiv.classList.add('success');
+        const tips = buildWeatherAdvice(data);
+        const location = (data && data.location) ? data.location : "your area";
+        const condition = (data && (data.summary || data.description)) ? (data.summary || data.description) : "variable conditions";
+        let adviceInfo = '<strong>🌱 Smart Advisory:</strong><br>';
+        adviceInfo += 'Live weather for ' + location + ': ' + condition + '<br><br>';
+        adviceInfo += tips.map(function (tip) { return '• ' + tip; }).join('<br>');
+        adviceDiv.innerHTML = adviceInfo;
+    }
+
+    function onAdviceError(err) {
+        console.log('Weather advice error:', err);
+        adviceDiv.classList.remove('loading');
+        adviceDiv.classList.add('error');
+        adviceDiv.innerHTML = '⚠️ Live weather advice is unavailable right now. Please try again after location access or weather service recovers.';
+    }
+
+    if (!navigator.geolocation) {
+        fetchWeatherData().then(renderAdvice).catch(onAdviceError);
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function (pos) {
+            fetchWeatherData(pos.coords.latitude, pos.coords.longitude)
+                .then(renderAdvice)
+                .catch(onAdviceError);
+        },
+        function () {
+            fetchWeatherData().then(renderAdvice).catch(onAdviceError);
+        },
+        getHighAccuracyGeoOptions()
+    );
+}
+
+/* =========================
+   WEATHER
+========================= */
+function weatherAlert() {
+    let weatherDiv = document.getElementById("weather");
+    weatherDiv.innerHTML = '<span class="loading-text"><span class="spinner"></span> Getting your location &amp; weather...</span>';
+    weatherDiv.classList.add('loading');
+    weatherDiv.classList.remove('error', 'success');
+
+    function showWeather(data) {
+        weatherDiv.classList.remove('loading');
+        weatherDiv.classList.add('success');
+        const dynamicTips = buildWeatherAdvice(data);
+        const mergedTips = (Array.isArray(data.tips) ? data.tips : []).concat(dynamicTips);
+        let weatherInfo = "<strong>🌤️ " + data.location + " — current weather</strong><br>";
+        weatherInfo += "🌡️ Temperature: " + data.temperature + "°C<br>";
+        weatherInfo += "💧 Humidity: " + data.humidity + "%<br>";
+        weatherInfo += "🌬️ Wind Speed: " + data.windSpeed + " km/h<br>";
+        weatherInfo += "☁️ Conditions: " + data.description + "<br><br>";
+        weatherInfo += "<strong>💡 Farming &amp; Fishing Tips:</strong><br>";
+        weatherInfo += mergedTips.map(function (tip) { return "• " + tip; }).join("<br>");
+        weatherDiv.innerHTML = weatherInfo;
+    }
+
+    function onError(err) {
+        console.log("Weather fetch error:", err);
+        weatherDiv.classList.remove('loading');
+        weatherDiv.classList.add('error');
+        weatherDiv.innerHTML = '<span class="error-badge">⚠️</span> Weather service unavailable. Using demo data.<br><br><strong>💡 Demo Tips:</strong><br>• 🌱 Good conditions for paddy transplantation<br>• 💧 Irrigate crops in early morning<br>• 🐟 Favorable weather for coastal fishing<br>• ⚠️ Monitor for sudden weather changes';
+    }
+
+    if (!navigator.geolocation) {
+        fetchWeatherData().then(showWeather).catch(onError);
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function (pos) {
+            fetchWeatherData(pos.coords.latitude, pos.coords.longitude)
+                .then(showWeather)
+                .catch(onError);
+        },
+        function () {
+            /* denied or timeout — use server default (Andhra Pradesh) */
+            fetchWeatherData().then(showWeather).catch(onError);
+        },
+        getHighAccuracyGeoOptions()
+    );
+}
+
+function refreshLocationNow() {
+    weatherAlert();
+    getAdvice();
+    refreshNearbySellers();
+}
+
+function getNearbyDealerData(lat, lon) {
+    const fallback = [
+        { name: "Sri Seed Point", type: "seed", phone: "9876501123", lat: 16.5068, lon: 80.6396, area: "Market Road", stock: "Paddy, maize, vegetable seeds" },
+        { name: "Rythu Fertilizer Depot", type: "fertilizer", phone: "9123404455", lat: 16.5039, lon: 80.6534, area: "Bus Stand Junction", stock: "Urea, DAP, NPK, micronutrients" },
+        { name: "Coastal Fish Dealer", type: "fish", phone: "9012307788", lat: 16.5114, lon: 80.6361, area: "Harbor Link Road", stock: "Fish seed, feed, nets" },
+        { name: "Green Crop Seeds", type: "seed", phone: "9490056781", lat: 16.4998, lon: 80.6428, area: "Rythu Bazar", stock: "Hybrid and native seeds" },
+        { name: "Agri Nutrients Hub", type: "fertilizer", phone: "9701403344", lat: 16.5105, lon: 80.6568, area: "Village Main Road", stock: "Sprayers, fertilizers, pesticides" },
+        { name: "BlueNet Fish Supply", type: "fish", phone: "9966112200", lat: 16.4983, lon: 80.6509, area: "Canal Side", stock: "Fish seed, probiotics, ice boxes" }
+    ];
+
+    if (Array.isArray(dealersMapState.nearbyDealers) && dealersMapState.nearbyDealers.length) {
+        return dealersMapState.nearbyDealers;
+    }
+
+    return fallback.map(function (item) {
+        return {
+            name: item.name,
+            type: item.type,
+            phone: item.phone,
+            area: item.area,
+            stock: item.stock,
+            lat: item.lat,
+            lon: item.lon
+        };
+    });
+}
+
+function sanitizeDealers(dealers) {
+    if (!Array.isArray(dealers)) return [];
+    return dealers
+        .map(function (dealer) {
+            const lat = Number(dealer && dealer.lat);
+            const lon = Number(dealer && dealer.lon);
+            if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+            return {
+                name: String((dealer && dealer.name) || "Nearby dealer"),
+                type: String((dealer && dealer.type) || "seed"),
+                phone: String((dealer && dealer.phone) || ""),
+                area: String((dealer && dealer.area) || "Nearby area"),
+                stock: String((dealer && dealer.stock) || "Agri supplies"),
+                lat,
+                lon
+            };
+        })
+        .filter(Boolean);
+}
+
+async function loadNearbyDealers(lat, lon) {
+    try {
+        const url = `/api/dealers-nearby?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&radius=7000`;
+        const res = await fetch(url);
+        if (!res.ok) {
+            throw new Error(`Dealer API HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (data && data.success && Array.isArray(data.dealers) && data.dealers.length) {
+            const sanitized = sanitizeDealers(data.dealers);
+            if (sanitized.length) {
+                const normalized = ensureDealersNearLocation(sanitized, lat, lon);
+                dealersMapState.nearbyDealers = normalized;
+                return normalized;
+            }
+        }
+    } catch (error) {
+        console.log("Nearby dealers API failed:", error.message);
+    }
+
+    const fallback = sanitizeDealers(getNearbyDealerData(lat, lon));
+    const normalizedFallback = ensureDealersNearLocation(fallback, lat, lon);
+    dealersMapState.nearbyDealers = normalizedFallback;
+    return normalizedFallback;
+}
+
+function distanceKmApprox(lat1, lon1, lat2, lon2) {
+    const y = (Number(lat2) - Number(lat1)) * 111;
+    const x = (Number(lon2) - Number(lon1)) * 111 * Math.cos((Number(lat1) * Math.PI) / 180);
+    return Math.hypot(x, y);
+}
+
+function buildLocalFallbackDealers(lat, lon) {
+    const points = [
+        { name: "Seed Dealer Near You", type: "seed", dLat: 0.007, dLon: 0.005, stock: "Paddy, maize, vegetable seeds" },
+        { name: "Fertilizer Shop Near You", type: "fertilizer", dLat: -0.006, dLon: 0.008, stock: "Urea, DAP, NPK, micronutrients" },
+        { name: "Fish Supply Near You", type: "fish", dLat: 0.005, dLon: -0.007, stock: "Fish seed, feed, nets" }
+    ];
+
+    return points.map(function (p) {
+        return {
+            name: p.name,
+            type: p.type,
+            phone: "",
+            area: "Nearby area",
+            stock: p.stock,
+            lat: Number(lat) + p.dLat,
+            lon: Number(lon) + p.dLon
+        };
+    });
+}
+
+function ensureDealersNearLocation(dealers, lat, lon) {
+    const latNum = Number(lat);
+    const lonNum = Number(lon);
+    if (!Array.isArray(dealers) || !dealers.length || !Number.isFinite(latNum) || !Number.isFinite(lonNum)) {
+        return dealers;
+    }
+
+    const nearestKm = dealers.reduce(function (best, d) {
+        const km = distanceKmApprox(latNum, lonNum, d.lat, d.lon);
+        return best === null || km < best ? km : best;
+    }, null);
+
+    if (nearestKm !== null && nearestKm <= 35) {
+        return dealers;
+    }
+
+    return buildLocalFallbackDealers(latNum, lonNum);
+}
+
+function dealerIcon(type) {
+    const iconByType = {
+        seed: { emoji: "🌱", className: "dealer-seed" },
+        fertilizer: { emoji: "🧪", className: "dealer-fertilizer" },
+        fish: { emoji: "🐟", className: "dealer-fish" }
+    };
+    const conf = iconByType[type] || iconByType.seed;
+    return L.divIcon({
+        className: "",
+        html: `<div class="dealer-pin ${conf.className}">${conf.emoji}</div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [0, -12]
+    });
+}
+
+const dealersMapState = {
+    map: null,
+    mapEl: null,
+    statusEl: null,
+    sellersEl: null,
+    routeStatusEl: null,
+    routeBtn: null,
+    dealerLayer: null,
+    routeLayer: null,
+    currentMarker: null,
+    accuracyCircle: null,
+    routeLine: null,
+    targetMarker: null,
+    selectedDealer: null,
+    currentLocation: null,
+    routeRequestId: 0,
+    routeAbortController: null,
+    nearbyDealers: [],
+    watchId: null,
+    fallback: { lat: 16.5062, lon: 80.6480, label: "Andhra Pradesh (fallback)" },
+    fullscreenBackdrop: null
+};
+
+function createCurrentLocationIcon() {
+    return L.divIcon({
+        className: "",
+        html: '<div class="current-location-marker"></div>',
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
+        popupAnchor: [0, -10]
+    });
+}
+
+function createRouteTargetIcon() {
+    return L.divIcon({
+        className: "",
+        html: '<div class="route-target-marker"></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+        popupAnchor: [0, -10]
+    });
+}
+
+function buildDirectionsUrl(originLat, originLon, destinationLat, destinationLon) {
+    return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${originLat},${originLon}`)}&destination=${encodeURIComponent(`${destinationLat},${destinationLon}`)}&travelmode=driving`;
+}
+
+function getNearestDealer(dealers, lat, lon) {
+    if (!Array.isArray(dealers) || !dealers.length) return null;
+    return dealers.reduce(function (best, dealer) {
+        const dealerDistance = Number.isFinite(lat) && Number.isFinite(lon)
+            ? Math.hypot(dealer.lat - lat, dealer.lon - lon)
+            : Infinity;
+        if (!best) {
+            return { dealer, distance: dealerDistance };
+        }
+        return dealerDistance < best.distance ? { dealer, distance: dealerDistance } : best;
+    }, null);
+}
+
+function renderNearbySellerWindow(dealers, lat, lon) {
+    const sellersEl = document.getElementById("nearbySellerList");
+    const statusEl = document.getElementById("nearbySellerStatus");
+    if (!sellersEl) return;
+
+    if (!Array.isArray(dealers) || !dealers.length) {
+        sellersEl.innerHTML = '<p><i class="fas fa-triangle-exclamation"></i> No nearby sellers found.</p>';
+        if (statusEl) statusEl.textContent = "No nearby sellers could be loaded right now.";
+        return;
+    }
+
+    sellersEl.innerHTML = dealers.map(function (dealer) {
+        const distanceKm = Number.isFinite(lat) && Number.isFinite(lon)
+            ? (Math.hypot(dealer.lat - lat, dealer.lon - lon) * 111).toFixed(2)
+            : "--";
+        return `
+            <div class="seller-entry">
+                <div class="seller-entry-head">
+                    <div>
+                        <div class="seller-entry-name">${dealer.name}</div>
+                        <div class="seller-entry-meta">${dealer.area} · ${dealer.type} · ${distanceKm} km away</div>
+                    </div>
+                    <div class="seller-entry-meta">${dealer.phone}</div>
+                </div>
+                <div class="seller-entry-actions">
+                    <a href="tel:${dealer.phone}"><i class="fas fa-phone"></i> Call</a>
+                    <a href="${buildDirectionsUrl(lat, lon, dealer.lat, dealer.lon)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-route"></i> Directions</a>
+                    <button type="button" class="btn-outline" onclick='startRouteTracking(${dealer.lat}, ${dealer.lon}, ${JSON.stringify(dealer.name)})'><i class="fas fa-location-crosshairs"></i> Track route</button>
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    if (statusEl) {
+        const nearest = getNearestDealer(dealers, lat, lon);
+        statusEl.textContent = nearest
+            ? `Showing ${dealers.length} nearby sellers. Nearest is ${nearest.dealer.name} (${nearest.dealer.phone}).`
+            : `Showing ${dealers.length} nearby sellers.`;
+    }
+}
+
+function updateDealerRouteStatus(message) {
+    const routeStatusEl = document.getElementById("dealersRouteStatus");
+    if (routeStatusEl) routeStatusEl.textContent = message;
+}
+
+function getI18nText(key, fallback) {
+    const t = LANGUAGE_DICTIONARY[getCurrentLanguage()] || LANGUAGE_DICTIONARY.en;
+    return t[key] || fallback || key;
+}
+
+function clearRouteWatch() {
+    if (dealersMapState.watchId !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(dealersMapState.watchId);
+        dealersMapState.watchId = null;
+    }
+}
+
+function stopDealerRouteTracking(message = "Route tracking stopped.") {
+    clearRouteWatch();
+    dealersMapState.selectedDealer = null;
+    dealersMapState.routeRequestId += 1;
+    if (dealersMapState.routeAbortController) {
+        dealersMapState.routeAbortController.abort();
+        dealersMapState.routeAbortController = null;
+    }
+    if (dealersMapState.routeLayer) {
+        dealersMapState.routeLayer.clearLayers();
+    }
+    const routeBtn = document.getElementById("dealerRouteTrackingBtn");
+    if (routeBtn) {
+        const t = LANGUAGE_DICTIONARY[getCurrentLanguage()] || LANGUAGE_DICTIONARY.en;
+        routeBtn.innerHTML = '<i class="fas fa-location-crosshairs"></i> <span data-i18n="mapStartTrackingBtn">' + t.mapStartTrackingBtn + '</span>';
+    }
+    updateDealerRouteStatus(message);
+}
+
+function buildFallbackRouteCoordinates(originLat, originLon, destinationLat, destinationLon) {
+    return [[originLat, originLon], [destinationLat, destinationLon]];
+}
+
+async function fetchRoadRouteCoordinates(originLat, originLon, destinationLat, destinationLon, signal) {
+    const url =
+        `https://router.project-osrm.org/route/v1/driving/` +
+        `${encodeURIComponent(originLon)},${encodeURIComponent(originLat)};${encodeURIComponent(destinationLon)},${encodeURIComponent(destinationLat)}` +
+        `?overview=full&geometries=geojson&steps=false`;
+
+    const response = await fetch(url, { signal });
+    if (!response.ok) {
+        throw new Error(`Routing service failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const route = data && Array.isArray(data.routes) ? data.routes[0] : null;
+    const coordinates = route && route.geometry && Array.isArray(route.geometry.coordinates)
+        ? route.geometry.coordinates
+        : [];
+
+    if (!coordinates.length) {
+        throw new Error("No route geometry returned");
+    }
+
+    // OSRM geometry uses [lon, lat]. Leaflet needs [lat, lon].
+    return coordinates.map(function (point) {
+        return [Number(point[1]), Number(point[0])];
+    });
+}
+
+function measureRouteDistanceKm(pathCoords) {
+    if (!dealersMapState.map || !Array.isArray(pathCoords) || pathCoords.length < 2) {
+        return null;
+    }
+
+    let meters = 0;
+    for (let i = 1; i < pathCoords.length; i += 1) {
+        meters += dealersMapState.map.distance(pathCoords[i - 1], pathCoords[i]);
+    }
+    return meters / 1000;
+}
+
+async function drawDealerRoutePath(originLat, originLon, selectedDealer) {
+    if (!selectedDealer || !dealersMapState.routeLayer) return;
+
+    dealersMapState.routeRequestId += 1;
+    const currentRequestId = dealersMapState.routeRequestId;
+
+    if (dealersMapState.routeAbortController) {
+        dealersMapState.routeAbortController.abort();
+    }
+    dealersMapState.routeAbortController = new AbortController();
+
+    let pathCoords = [];
+    let routeMode = "road";
+
+    try {
+        pathCoords = await fetchRoadRouteCoordinates(
+            originLat,
+            originLon,
+            selectedDealer.lat,
+            selectedDealer.lon,
+            dealersMapState.routeAbortController.signal
+        );
+    } catch (error) {
+        if (error && error.name === "AbortError") {
+            return;
+        }
+        routeMode = "straight";
+        pathCoords = buildFallbackRouteCoordinates(originLat, originLon, selectedDealer.lat, selectedDealer.lon);
+    }
+
+    if (currentRequestId !== dealersMapState.routeRequestId || !dealersMapState.selectedDealer) {
+        return;
+    }
+
+    dealersMapState.routeLine = L.polyline(pathCoords, {
+        color: "#38bdf8",
+        weight: 4,
+        opacity: 0.92,
+        dashArray: "10 10",
+        className: "dealer-route-line",
+        renderer: L.canvas()
+    }).addTo(dealersMapState.routeLayer);
+
+    const routeKm = measureRouteDistanceKm(pathCoords);
+    if (routeKm !== null) {
+        if (routeMode === "road") {
+            updateDealerRouteStatus(`Tracking road route to ${selectedDealer.name} (${routeKm.toFixed(2)} km by road).`);
+        } else {
+            updateDealerRouteStatus(`Routing service unavailable. Showing direct path to ${selectedDealer.name} (${routeKm.toFixed(2)} km).`);
+        }
+    }
+}
+
+function updateRouteOverlay(lat, lon) {
+    if (!dealersMapState.map || !dealersMapState.routeLayer) return;
+    const selectedDealer = dealersMapState.selectedDealer;
+    dealersMapState.routeLayer.clearLayers();
+
+    dealersMapState.currentLocation = { lat, lon };
+
+    dealersMapState.accuracyCircle = L.circle([lat, lon], {
+        radius: 170,
+        color: "#3b82f6",
+        weight: 1.3,
+        fillColor: "#3b82f6",
+        fillOpacity: 0.09,
+        renderer: L.canvas()
+    }).addTo(dealersMapState.routeLayer);
+
+    dealersMapState.currentMarker = L.marker([lat, lon], {
+        icon: createCurrentLocationIcon(),
+        keyboard: false,
+        title: "Your current location"
+    }).addTo(dealersMapState.routeLayer).bindPopup("<strong>Your location</strong><br>Blue dot tracks your live position.");
+
+    if (selectedDealer) {
+        dealersMapState.targetMarker = L.marker([selectedDealer.lat, selectedDealer.lon], {
+            icon: createRouteTargetIcon(),
+            keyboard: false,
+            title: selectedDealer.name
+        }).addTo(dealersMapState.routeLayer).bindPopup(`<strong>${selectedDealer.name}</strong><br>${selectedDealer.phone}`);
+        updateDealerRouteStatus(`Calculating road route to ${selectedDealer.name}...`);
+        drawDealerRoutePath(lat, lon, selectedDealer);
+    } else {
+        updateDealerRouteStatus(getI18nText("routeLiveLocationUpdated", "Live location updated. Tap a seller to start route tracking."));
+    }
+}
+
+function refreshNearbySellers() {
+    if (!navigator.geolocation) {
+        loadNearbyDealers(dealersMapState.fallback.lat, dealersMapState.fallback.lon).then(function (dealers) {
+            renderNearbySellerWindow(dealers, dealersMapState.fallback.lat, dealersMapState.fallback.lon);
+            if (dealersMapState.map) {
+                renderDealersMap(dealersMapState.fallback.lat, dealersMapState.fallback.lon, dealersMapState.fallback.label, 180, false);
+            }
+        });
+        updateDealerRouteStatus(getI18nText("routeGeoFallback", "Geolocation is not available. Showing fallback nearby sellers."));
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function (pos) {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            loadNearbyDealers(lat, lon).then(function (dealers) {
+                renderNearbySellerWindow(dealers, lat, lon);
+                if (dealersMapState.map) {
+                    dealersMapState.map.flyTo([lat, lon], Math.max(dealersMapState.map.getZoom() || 12, 12), { animate: true, duration: 0.7 });
+                    renderDealersMap(lat, lon, "your current location", pos.coords.accuracy || 170, true);
+                    if (dealersMapState.selectedDealer) {
+                        updateRouteOverlay(lat, lon);
+                    }
+                }
+            });
+        },
+        function () {
+            loadNearbyDealers(dealersMapState.fallback.lat, dealersMapState.fallback.lon).then(function (dealers) {
+                renderNearbySellerWindow(dealers, dealersMapState.fallback.lat, dealersMapState.fallback.lon);
+                if (dealersMapState.map) {
+                    renderDealersMap(dealersMapState.fallback.lat, dealersMapState.fallback.lon, dealersMapState.fallback.label, 180, false);
+                }
+            });
+            updateDealerRouteStatus(getI18nText("routeUsingFallback", "Using fallback location to show nearby sellers."));
+        },
+        getHighAccuracyGeoOptions()
+    );
+}
+
+function toggleDealersMapFullscreen() {
+    const mapEl = dealersMapState.mapEl || document.getElementById("dealersMap");
+    if (!mapEl) return;
+
+    const isFullscreen = mapEl.classList.contains("is-fullscreen");
+    if (isFullscreen) {
+        mapEl.classList.remove("is-fullscreen");
+        if (dealersMapState.fullscreenBackdrop) {
+            dealersMapState.fullscreenBackdrop.remove();
+            dealersMapState.fullscreenBackdrop = null;
+        }
+        if (document.fullscreenElement) {
+            document.exitFullscreen().catch(function () {});
+        }
+        updateDealerRouteStatus(getI18nText("routeFullscreenExit", "Exited fullscreen map view."));
+    } else {
+        mapEl.classList.add("is-fullscreen");
+        dealersMapState.fullscreenBackdrop = document.createElement("div");
+        dealersMapState.fullscreenBackdrop.className = "map-fullscreen-backdrop";
+        dealersMapState.fullscreenBackdrop.addEventListener("click", toggleDealersMapFullscreen);
+        document.body.appendChild(dealersMapState.fullscreenBackdrop);
+        if (mapEl.requestFullscreen) {
+            mapEl.requestFullscreen().catch(function () {});
+        }
+        updateDealerRouteStatus(getI18nText("routeFullscreenEnabled", "Fullscreen map view enabled."));
+    }
+
+    if (dealersMapState.map) {
+        setTimeout(function () {
+            dealersMapState.map.invalidateSize();
+        }, 180);
+    }
+}
+
+function focusNearestDealerDirections() {
+    const lat = dealersMapState.currentLocation ? dealersMapState.currentLocation.lat : dealersMapState.fallback.lat;
+    const lon = dealersMapState.currentLocation ? dealersMapState.currentLocation.lon : dealersMapState.fallback.lon;
+    const dealers = Array.isArray(dealersMapState.nearbyDealers) && dealersMapState.nearbyDealers.length
+        ? dealersMapState.nearbyDealers
+        : getNearbyDealerData(lat, lon);
+    const nearest = getNearestDealer(dealers, lat, lon);
+
+    if (!nearest) {
+        updateDealerRouteStatus(getI18nText("routeNoNearbyDealer", "No nearby dealer found for directions."));
+        return;
+    }
+
+    dealersMapState.selectedDealer = nearest.dealer;
+    if (dealersMapState.map) {
+        dealersMapState.map.flyTo([nearest.dealer.lat, nearest.dealer.lon], 14, { animate: true, duration: 0.75 });
+    }
+    updateRouteOverlay(lat, lon);
+    updateDealerRouteStatus(`Focused on ${nearest.dealer.name}. Open directions or start route tracking.`);
+    window.open(buildDirectionsUrl(lat, lon, nearest.dealer.lat, nearest.dealer.lon), "_blank", "noopener,noreferrer");
+}
+
+function startRouteTracking(destinationLat, destinationLon, destinationName) {
+    if (!navigator.geolocation) {
+        updateDealerRouteStatus(getI18nText("routeGeoUnavailable", "Geolocation is not available for route tracking."));
+        return;
+    }
+
+    const originLat = dealersMapState.currentLocation ? dealersMapState.currentLocation.lat : dealersMapState.fallback.lat;
+    const originLon = dealersMapState.currentLocation ? dealersMapState.currentLocation.lon : dealersMapState.fallback.lon;
+    const nearbyDealers = Array.isArray(dealersMapState.nearbyDealers) && dealersMapState.nearbyDealers.length
+        ? dealersMapState.nearbyDealers
+        : getNearbyDealerData(originLat, originLon);
+    const matchedDealer = nearbyDealers.find(function (dealer) {
+        return Math.abs(dealer.lat - Number(destinationLat)) < 0.000001 && Math.abs(dealer.lon - Number(destinationLon)) < 0.000001;
+    });
+
+    dealersMapState.selectedDealer = {
+        lat: Number(destinationLat),
+        lon: Number(destinationLon),
+        name: destinationName || (matchedDealer && matchedDealer.name) || "selected seller",
+        phone: matchedDealer && matchedDealer.phone ? matchedDealer.phone : ""
+    };
+
+    clearRouteWatch();
+
+    const routeBtn = document.getElementById("dealerRouteTrackingBtn");
+    if (routeBtn) {
+        const t = LANGUAGE_DICTIONARY[getCurrentLanguage()] || LANGUAGE_DICTIONARY.en;
+        routeBtn.innerHTML = '<i class="fas fa-stop"></i> <span data-i18n="mapStopTrackingBtn">' + t.mapStopTrackingBtn + '</span>';
+    }
+
+    updateDealerRouteStatus(`Starting live route tracking to ${dealersMapState.selectedDealer.name}...`);
+
+    dealersMapState.watchId = navigator.geolocation.watchPosition(
+        function (pos) {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            loadNearbyDealers(lat, lon).then(function (dealers) {
+                renderNearbySellerWindow(dealers, lat, lon);
+                updateRouteOverlay(lat, lon);
+                if (dealersMapState.map) {
+                    dealersMapState.map.panTo([lat, lon], { animate: true, duration: 0.55 });
+                }
+            });
+        },
+        function (error) {
+            console.log("Route tracking geolocation error:", error);
+            stopDealerRouteTracking("Route tracking stopped because location access failed.");
+        },
+        getHighAccuracyGeoOptions()
+    );
+}
+
+function toggleDealerRouteTracking() {
+    if (dealersMapState.watchId !== null) {
+        stopDealerRouteTracking();
+        return;
+    }
+
+    const lat = dealersMapState.currentLocation ? dealersMapState.currentLocation.lat : dealersMapState.fallback.lat;
+    const lon = dealersMapState.currentLocation ? dealersMapState.currentLocation.lon : dealersMapState.fallback.lon;
+    const dealers = Array.isArray(dealersMapState.nearbyDealers) && dealersMapState.nearbyDealers.length
+        ? dealersMapState.nearbyDealers
+        : getNearbyDealerData(lat, lon);
+    const nearest = getNearestDealer(dealers, lat, lon);
+    if (!nearest) {
+        updateDealerRouteStatus(getI18nText("routeNoDealerToTrack", "No dealer available to track."));
+        return;
+    }
+
+    startRouteTracking(nearest.dealer.lat, nearest.dealer.lon, nearest.dealer.name);
+}
+
+function renderDealersMap(lat, lon, label, accuracyMeters = 180, shouldFly = false) {
+    if (!dealersMapState.map) return;
+    const map = dealersMapState.map;
+    const dealers = sanitizeDealers(getNearbyDealerData(lat, lon));
+    if (!dealers.length) {
+        updateDealerRouteStatus("Nearby shops are temporarily unavailable. Keeping last known map pins.");
+        return;
+    }
+
+    dealersMapState.currentLocation = { lat, lon };
+    dealersMapState.dealerLayer.clearLayers();
+
+    dealers.forEach(function (dealer) {
+        const distanceKm = map.distance([lat, lon], [dealer.lat, dealer.lon]) / 1000;
+        const popupHtml = `
+            <strong>${dealer.name}</strong><br>
+            Area: ${dealer.area}<br>
+            Type: ${dealer.type}<br>
+            Stock: ${dealer.stock}<br>
+            Phone: ${dealer.phone}<br>
+            Distance: ${distanceKm.toFixed(2)} km<br><br>
+            <button type="button" class="btn-outline" onclick="window.open('${buildDirectionsUrl(lat, lon, dealer.lat, dealer.lon)}', '_blank', 'noopener,noreferrer')">Directions</button>
+            <button type="button" class="btn-outline" onclick='startRouteTracking(${dealer.lat}, ${dealer.lon}, ${JSON.stringify(dealer.name)})'>Track route</button>
+        `;
+
+        L.marker([dealer.lat, dealer.lon], { icon: dealerIcon(dealer.type) })
+            .addTo(dealersMapState.dealerLayer)
+            .bindPopup(popupHtml);
+    });
+
+    dealersMapState.routeLayer.clearLayers();
+    dealersMapState.accuracyCircle = L.circle([lat, lon], {
+        radius: accuracyMeters,
+        color: "#22d3ee",
+        weight: 1.3,
+        fillColor: "#22d3ee",
+        fillOpacity: 0.08,
+        renderer: L.canvas()
+    }).addTo(dealersMapState.routeLayer);
+
+    dealersMapState.currentMarker = L.marker([lat, lon], {
+        icon: createCurrentLocationIcon(),
+        keyboard: false,
+        title: "Your location"
+    }).addTo(dealersMapState.routeLayer).bindPopup(`<strong>Your location</strong><br>Approx. accuracy radius: ${accuracyMeters}m`);
+
+    if (dealersMapState.selectedDealer) {
+        dealersMapState.targetMarker = L.marker([dealersMapState.selectedDealer.lat, dealersMapState.selectedDealer.lon], {
+            icon: createRouteTargetIcon(),
+            keyboard: false,
+            title: dealersMapState.selectedDealer.name
+        }).addTo(dealersMapState.routeLayer);
+
+        updateDealerRouteStatus(`Calculating road route to ${dealersMapState.selectedDealer.name}...`);
+        drawDealerRoutePath(lat, lon, dealersMapState.selectedDealer);
+    }
+
+    renderNearbySellerWindow(dealers, lat, lon);
+
+    if (shouldFly) {
+        map.flyTo([lat, lon], 13, { animate: true, duration: 0.75 });
+    } else {
+        map.setView([lat, lon], 13, { animate: true });
+    }
+
+    if (dealersMapState.statusEl) {
+        dealersMapState.statusEl.textContent = `Showing detailed nearby dealers around ${label}.`;
+    }
+
+    const boundsPoints = dealers.map(function (dealer) {
+        return [dealer.lat, dealer.lon];
+    });
+    boundsPoints.push([lat, lon]);
+
+    const bounds = L.latLngBounds(boundsPoints);
+    if (bounds.isValid()) {
+        map.fitBounds(bounds.pad(0.18), { animate: true, duration: 0.75, maxZoom: 14 });
+    } else if (shouldFly) {
+        map.flyTo([lat, lon], 13, { animate: true, duration: 0.75 });
+    } else {
+        map.setView([lat, lon], 13, { animate: true });
+    }
+
+    setTimeout(function () {
+        map.invalidateSize();
+    }, 120);
+}
+
+function initDealersMap() {
+    const mapEl = document.getElementById("dealersMap");
+    const statusEl = document.getElementById("dealersMapStatus");
+    const sellersEl = document.getElementById("nearbySellerList");
+    const routeStatusEl = document.getElementById("dealersRouteStatus");
+    const routeBtn = document.getElementById("dealerRouteTrackingBtn");
+    if (!mapEl || typeof L === "undefined") return;
+
+    dealersMapState.mapEl = mapEl;
+    dealersMapState.statusEl = statusEl;
+    dealersMapState.sellersEl = sellersEl;
+    dealersMapState.routeStatusEl = routeStatusEl;
+    dealersMapState.routeBtn = routeBtn;
+
+    if (dealersMapState.map) {
+        return;
+    }
+
+    dealersMapState.map = L.map(mapEl, {
+        zoomControl: true,
+        attributionControl: false,
+        preferCanvas: true,
+        zoomSnap: 0.25,
+        zoomDelta: 0.5,
+        inertia: true,
+        inertiaDeceleration: 3500,
+        updateWhenIdle: true,
+        updateWhenZooming: false
+    });
+
+    L.control.scale({ imperial: false, metric: true, position: "bottomleft" }).addTo(dealersMapState.map);
+
+    const detailedTiles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 20,
+        subdomains: ["a", "b", "c"],
+        keepBuffer: 2,
+        updateWhenIdle: true,
+        updateWhenZooming: false
+    }).addTo(dealersMapState.map);
+
+    const satelliteTiles = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+        maxZoom: 19,
+        keepBuffer: 2,
+        updateWhenIdle: true,
+        updateWhenZooming: false
+    });
+
+    L.control.layers(
+        {
+            "Detailed street map": detailedTiles,
+            "Satellite": satelliteTiles
+        },
+        {},
+        { collapsed: true }
+    ).addTo(dealersMapState.map);
+
+    dealersMapState.dealerLayer = L.layerGroup().addTo(dealersMapState.map);
+    dealersMapState.routeLayer = L.layerGroup().addTo(dealersMapState.map);
+
+    if (!navigator.geolocation) {
+        loadNearbyDealers(dealersMapState.fallback.lat, dealersMapState.fallback.lon).then(function (initialDealers) {
+            renderDealersMap(dealersMapState.fallback.lat, dealersMapState.fallback.lon, dealersMapState.fallback.label, 180, false);
+            renderNearbySellerWindow(initialDealers, dealersMapState.fallback.lat, dealersMapState.fallback.lon);
+        });
+        return;
+    }
+
+    if (dealersMapState.statusEl) {
+        dealersMapState.statusEl.textContent = "Getting exact location and nearby shops...";
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function (pos) {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            loadNearbyDealers(lat, lon).then(function () {
+                renderDealersMap(lat, lon, "your current location", pos.coords.accuracy || 170, false);
+            });
+        },
+        function () {
+            loadNearbyDealers(dealersMapState.fallback.lat, dealersMapState.fallback.lon).then(function (dealers) {
+                renderDealersMap(dealersMapState.fallback.lat, dealersMapState.fallback.lon, dealersMapState.fallback.label, 180, false);
+                renderNearbySellerWindow(dealers, dealersMapState.fallback.lat, dealersMapState.fallback.lon);
+            });
+        },
+        getHighAccuracyGeoOptions()
+    );
+}
+
+/* =========================
+   TELUGU VOICE ALERT
+========================= */
+function damAlert() {
+    const phone = document.getElementById("alertPhone").value || "9876543210";
+    const location = document.getElementById("damLocation").value || "the dam";
+
+    // Show loading state
+    setDamStatus("📞 Initiating voice call...", true);
+
+    // Make API call to backend for Twilio voice call
+    fetch('/make-call', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            phoneNumber: phone,
+            damName: location
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            setDamStatus(`✅ Voice call initiated to ${phone} for ${location}!`, true);
+            console.log("Call SID:", data.sid);
+        } else {
+            setDamStatus(`❌ Call failed: ${data.error}`, false);
+        }
+    })
+    .catch(error => {
+        console.error("Call Error:", error);
+        setDamStatus(`❌ Call error: ${error.message}`, false);
+    });
+
+    // Also play local browser TTS as fallback/demo
+    const textTelugu = `${location} వ�్డ డ్యామ్ నీరు విడుదల అవుతున్నది. దయచేసి త్వరగా భద్రత స్థలానికి తరలించండి.`;
+
+    let voices = speechSynthesis.getVoices();
+    let teluguVoice = voices.find(voice => voice.lang === 'te-IN' || voice.lang.startsWith('te'));
+
+    let msg = new SpeechSynthesisUtterance(textTelugu);
+    msg.rate = 0.95;
+    msg.pitch = 1.05;
+
+    if (teluguVoice) {
+        msg.voice = teluguVoice;
+        msg.lang = 'te-IN';
+    } else {
+        msg.text = `Attention everyone: ${location} dam is releasing water now. Please move to safety.`;
+        msg.lang = 'en-US';
+    }
+
+    speechSynthesis.speak(msg);
+}
+
+function damAlertSMS() {
+    if (!ensureOfficialAccess()) return;
+
+    const phones = getAlertPhoneNumbers();
+    const location = (document.getElementById("damLocation").value || "the dam").trim() || "the dam";
+    const language = getSelectedAlertLanguage();
+
+    if (!phones.length) {
+        setDamStatus("Please enter at least one phone number to send SMS alert.", false);
+        return;
+    }
+
+    setDamStatus(`📱 Sending SMS alerts to ${phones.length} recipient(s)...`, true);
+
+    Promise.all(
+        phones.map(function (phone) {
+            return fetch('/send-sms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    phoneNumber: phone,
+                    damName: location,
+                    language
+                })
+            })
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    return {
+                        ok: response.ok && data && data.success,
+                        phone: phone,
+                        error: data && data.error ? data.error : null
+                    };
+                });
+            })
+            .catch(function (error) {
+                return { ok: false, phone: phone, error: error.message };
+            });
+        })
+    ).then(function (results) {
+        const successCount = results.filter(function (r) { return r.ok; }).length;
+        const failed = results.filter(function (r) { return !r.ok; });
+
+        if (!failed.length) {
+            setDamStatus(`✅ SMS sent to all ${successCount} recipients for ${location}.`, true);
+            return;
+        }
+
+        const failedPhones = failed.map(function (r) { return r.phone; }).join(", ");
+        setDamStatus(`⚠️ SMS sent to ${successCount}/${phones.length}. Failed: ${failedPhones}`, false);
+    });
+}
+
+async function sendWeatherAlertSMS() {
+    if (!ensureOfficialAccess()) return;
+
+    let phones = getAlertPhoneNumbers();
+    if (!phones.length) {
+        phones = getRegisteredUsers()
+            .map(function (user) { return normalizePhoneNumber(user.phone); })
+            .filter(Boolean);
+    }
+
+    if (!phones.length) {
+        setDamStatus("No recipients found. Add phone numbers in Dam Alert section first.", false);
+        return;
+    }
+
+    const weatherDiv = document.getElementById("weather");
+    if (weatherDiv) {
+        weatherDiv.classList.remove("error", "success");
+        weatherDiv.classList.add("loading");
+        weatherDiv.innerHTML = '<span class="loading-text"><span class="spinner"></span> Sending weather alert SMS...</span>';
+    }
+
+    const coords = await new Promise(function (resolve) {
+        if (!navigator.geolocation) {
+            resolve(null);
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+            },
+            function () {
+                resolve(null);
+            },
+            getHighAccuracyGeoOptions()
+        );
+    });
+
+    const payloadBase = coords ? { lat: coords.lat, lon: coords.lon } : {};
+
+    const results = await Promise.all(
+        phones.map(async function (phone) {
+            try {
+                const response = await fetch("/send-weather-alert-sms", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        phoneNumber: phone,
+                        ...payloadBase
+                    })
+                });
+                const data = await response.json();
+                return {
+                    ok: response.ok && data && data.success,
+                    phone,
+                    error: data && data.error ? data.error : null
+                };
+            } catch (error) {
+                return { ok: false, phone, error: error.message };
+            }
+        })
+    );
+
+    const successCount = results.filter(function (item) { return item.ok; }).length;
+    const failed = results.filter(function (item) { return !item.ok; });
+
+    if (weatherDiv) {
+        weatherDiv.classList.remove("loading");
+    }
+
+    if (!failed.length) {
+        if (weatherDiv) {
+            weatherDiv.classList.add("success");
+            weatherDiv.innerHTML = `<strong>✅ Weather alert sent</strong><br>SMS delivered to ${successCount} recipient(s).`;
+        }
+        setDamStatus(`✅ Weather alert SMS sent to all ${successCount} recipient(s).`, true);
+        return;
+    }
+
+    const failedPhones = failed.map(function (item) { return item.phone; }).join(", ");
+    if (weatherDiv) {
+        weatherDiv.classList.add("error");
+        weatherDiv.innerHTML = `<strong>⚠️ Partial delivery</strong><br>Sent to ${successCount}/${phones.length}. Failed: ${failedPhones}`;
+    }
+    setDamStatus(`⚠️ Weather alert SMS sent to ${successCount}/${phones.length}. Failed: ${failedPhones}`, false);
+}
+
+let damWatcherId = null;
+function toggleAutoDamWatcher() {
+    if (!ensureOfficialAccess()) return;
+
+    const btn = document.getElementById('toggleDamWatcher');
+    if (damWatcherId) {
+        clearInterval(damWatcherId);
+        damWatcherId = null;
+        btn.innerHTML = '<i class="fas fa-clock"></i> Auto watch';
+        btn.style.opacity = '1';
+        setDamStatus('🛑 Automatic watch stopped.', false);
+        return;
+    }
+
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Stop watch';
+    btn.style.opacity = '0.8';
+    setDamStatus('🟢 Automatic watch active: checking every 15 sec for anomalies...', true);
+
+    damWatcherId = setInterval(() => {
+        let randomProbability = Math.random();
+        if (randomProbability > 0.88) {
+            setDamStatus('🔴 HIGH ALERT: Possible dam release detected! Emergency alerts triggered...', true);
+            damAlert();
+        } else {
+            setDamStatus('🟢 Status: All systems normal. No active release event detected.', true);
+        }
+    }, 15000);
+}
+
+function setDamStatus(text, success) {
+    const status = document.getElementById('damStatus');
+    status.style.animation = 'none';
+    setTimeout(() => {
+        status.style.animation = 'slideInLeft 0.4s ease-out';
+    }, 0);
+    status.innerText = 'Status: ' + text;
+    status.style.color = success ? '#afffbc' : '#ffb4b4';
+    status.style.fontWeight = success ? '600' : '500';
+}
+
+function playTeluguWithGoogle(text, location) {
+    setDamStatus(`Attempting Telugu speech for: ${location}...`, true);
+
+    // Try multiple TTS approaches
+    const audio = new Audio();
+    const encodedText = encodeURIComponent(text);
+
+    // Try different TTS services
+    const ttsUrls = [
+        // Google Translate TTS
+        `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodedText}&tl=te&total=1&idx=0&textlen=${text.length}`,
+        // Alternative Google URL
+        `https://translate.google.com/translate_tts?ie=UTF-8&tl=te&client=tw-ob&q=${encodedText}`,
+        // Try with different client
+        `https://translate.google.com/translate_tts?ie=UTF-8&client=gtx&q=${encodedText}&tl=te`
+    ];
+
+    let currentUrlIndex = 0;
+
+    function tryNextUrl() {
+        if (currentUrlIndex >= ttsUrls.length) {
+            // All Google TTS failed, try Web Speech API with Telugu text
+            console.log('All Google TTS failed, trying Web Speech API with Telugu text');
+            useWebSpeechWithTeluguText(text, location);
+            return;
+        }
+
+        audio.src = ttsUrls[currentUrlIndex];
+        currentUrlIndex++;
+        audio.load();
+    }
+
+    function useWebSpeechWithTeluguText(text, location) {
+        // Use Web Speech API with Telugu text, even if voice is Hindi
+        let voices = speechSynthesis.getVoices();
+        let voice = voices.find(v => v.lang === 'hi-IN') || voices.find(v => v.lang.startsWith('en'));
+
+        if (voice) {
+            let msg = new SpeechSynthesisUtterance(text); // Use Telugu text
+            msg.voice = voice;
+            msg.lang = voice.lang;
+            msg.rate = 0.8; // Slower for better pronunciation
+            msg.pitch = 1.1;
+            setDamStatus(`Playing Telugu text with ${voice.lang} voice for: ${location}`, true);
+            speechSynthesis.speak(msg);
+        } else {
+            // Final fallback to English
+            let msg = new SpeechSynthesisUtterance(`Attention everyone: ${location} dam is releasing water now. Please move to safety immediately.`);
+            msg.lang = 'en-US';
+            setDamStatus('All Telugu TTS options failed, using English.', false);
+            speechSynthesis.speak(msg);
+        }
+    }
+
+    audio.volume = 0.9;
+
+    audio.oncanplay = () => {
+        setDamStatus(`Playing Telugu alert with Google TTS for: ${location}`, true);
+        audio.play().catch(e => {
+            console.log('Audio play failed:', e);
+            useWebSpeechWithTeluguText(text, location);
+        });
+    };
+
+    audio.onerror = () => {
+        console.log(`TTS URL ${currentUrlIndex} failed, trying next...`);
+        tryNextUrl();
+    };
+
+    // Start with first URL
+    tryNextUrl();
+}
+
+function populateVoiceOptions() {
+    const select = document.getElementById('voiceSelect');
+    const voices = speechSynthesis.getVoices();
+    if (!voices.length) return;
+
+    const selectedValue = select.value;
+    select.innerHTML = '<option value="">Auto-detect Telugu (Google TTS) first</option>';
+    
+    // Always add Google Telugu TTS option first
+    const googleTeluguOption = document.createElement('option');
+    googleTeluguOption.value = 'google-telugu';
+    googleTeluguOption.textContent = '🌐 Google Telugu TTS - Online';
+    if (selectedValue === 'google-telugu') googleTeluguOption.selected = true;
+    select.appendChild(googleTeluguOption);
+
+    // Filter to only Telugu, Hindi, and English voices
+    const allowedVoices = voices.filter(voice => {
+        const lang = voice.lang.toLowerCase();
+        return lang.startsWith('te') || lang.startsWith('hi') || lang.startsWith('en');
+    });
+
+    allowedVoices.forEach(voice => {
+        const fromTelugu = voice.lang.startsWith('te');
+        const fromHindi = voice.lang.startsWith('hi');
+        const label = `${voice.name} (${voice.lang})${fromTelugu ? ' - Telugu' : fromHindi ? ' - Hindi' : ' - English'}`;
+        const option = document.createElement('option');
+        option.value = voice.name;
+        option.textContent = label;
+        if (voice.name === selectedValue) option.selected = true;
+        select.appendChild(option);
+    });
+
+    let teluguVoice = voices.find(v => v.lang === 'te-IN' || v.lang.startsWith('te'));
+    if (teluguVoice) {
+        setDamStatus(`Telugu voice available: ${teluguVoice.name}. Select "Google Telugu TTS" for online voice.`, true);
+    } else {
+        setDamStatus(`Ready for Telugu speech (will use Google TTS or Hindi voice with Telugu text).`, true);
+    }
+}
+
+function normalizePhoneNumber(rawPhone) {
+    const cleaned = String(rawPhone || "").replace(/[\s()-]/g, "");
+    if (!cleaned) return "";
+    if (cleaned.startsWith("+")) return cleaned;
+    const digitsOnly = cleaned.replace(/\D/g, "");
+    if (digitsOnly.length === 10) return `+91${digitsOnly}`;
+    if (digitsOnly.length === 12 && digitsOnly.startsWith("91")) return `+${digitsOnly}`;
+    return `+${digitsOnly}`;
+}
+
+function getSelectedAlertLanguage() {
+    const select = document.getElementById('voiceSelect');
+    const selected = select ? select.value : '';
+    const voices = speechSynthesis.getVoices();
+
+    if (selected === 'google-telugu') return 'te-IN';
+
+    if (selected) {
+        const matchedVoice = voices.find(v => v.name === selected);
+        if (matchedVoice && matchedVoice.lang) {
+            return matchedVoice.lang;
+        }
+    }
+
+    const fallback =
+        voices.find(v => v.lang === 'te-IN' || v.lang.startsWith('te')) ||
+        voices.find(v => v.lang === 'hi-IN') ||
+        voices.find(v => v.lang === 'en-IN') ||
+        voices.find(v => v.lang.startsWith('en'));
+
+    return fallback && fallback.lang ? fallback.lang : 'en-IN';
+}
+
+function applyDefaultPhonePrefix() {
+    const phoneInputs = document.querySelectorAll('.alert-phone, .phone-normalize');
+    phoneInputs.forEach(function (phoneInput) {
+        if (!phoneInput.value || !phoneInput.value.trim()) {
+            phoneInput.value = '+91';
+        }
+        phoneInput.addEventListener('blur', function () {
+            phoneInput.value = normalizePhoneNumber(phoneInput.value);
+        });
+    });
+}
+
+function getHighAccuracyGeoOptions() {
+    return {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+    };
+}
+
+function getPageFeatureContext() {
+    return {
+        weatherCard: Boolean(document.getElementById("weather-section")),
+        damAlertCard: Boolean(document.getElementById("damAlertCard")),
+        dealersMapCard: Boolean(document.getElementById("dealersMapCard")),
+        schemesCard: Boolean(document.getElementById("schemesCard")),
+        diseaseScanner: Boolean(document.getElementById("imageInput")),
+        voiceWidgetReady: Boolean(document.getElementById("chatbotToggle")),
+        voiceBridgeReady: typeof window.voiceAgentAction === "function"
+    };
+}
+
+function isAiConnectedToPageFeatures() {
+    const context = getPageFeatureContext();
+    return context.voiceWidgetReady && context.voiceBridgeReady;
+}
+
+window.ruralGuardsFeatureBridge = {
+    getContext: getPageFeatureContext,
+    isConnected: isAiConnectedToPageFeatures
+};
+
+// Voice Agent Integration - Enable ElevenLabs to call system features
+async function handleVoiceAgentRequest(action, query, metadata = {}) {
+    console.log("🎤 Voice Agent Request:", { action, query, metadata });
+
+    async function getVoiceLocation() {
+        if (metadata.location && Number.isFinite(Number(metadata.location.lat)) && Number.isFinite(Number(metadata.location.lon))) {
+            return {
+                lat: Number(metadata.location.lat),
+                lon: Number(metadata.location.lon)
+            };
+        }
+
+        if (!navigator.geolocation) {
+            return null;
+        }
+
+        return new Promise(function (resolve) {
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+                },
+                function () {
+                    resolve(null);
+                },
+                getHighAccuracyGeoOptions()
+            );
+        });
+    }
+    
+    try {
+        const locationPayload = await getVoiceLocation();
+        const response = await fetch("/voice-agent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action: action || "general",
+                query: query || "",
+                location: locationPayload,
+                damName: metadata.damName || "nearby",
+                language: metadata.language || getSelectedAlertLanguage(),
+                pageContext: getPageFeatureContext()
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Voice agent request failed: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log("🎤 Voice Agent Response:", data);
+        
+        return {
+            success: data.success,
+            text: data.voice || data.data?.description || "I'm here to help. What would you like to know?",
+            type: data.type,
+            data: data.data,
+            urgent: data.urgent || false
+        };
+    } catch (error) {
+        console.log("❌ Voice Agent Error:", error.message);
+        return {
+            success: false,
+            text: "Sorry, I encountered an error processing your request. Please try again.",
+            type: "error",
+            error: error.message
+        };
+    }
+}
+
+// Global function to allow ElevenLabs widget to trigger voice actions
+window.voiceAgentAction = handleVoiceAgentRequest;
+
+const geminiVoiceState = {
+    recognition: null,
+    listening: false,
+    stayInConversation: false,
+    waitingReply: false,
+    supportsRecognition: false,
+    speaking: false,
+    lastTranscript: ""
+};
+
+function setVoiceCopilotStage(open) {
+    const stage = document.getElementById("voiceCopilotStage");
+    if (!stage) return;
+    stage.hidden = !open;
+    stage.classList.toggle("open", Boolean(open));
+}
+
+function updateVoiceCopilotStage(state, transcript) {
+    const stage = document.getElementById("voiceCopilotStage");
+    const status = document.getElementById("voiceCopilotStatus");
+    const transcriptEl = document.getElementById("voiceCopilotTranscript");
+    const subtitle = document.getElementById("voiceCopilotSubtitle");
+    if (!stage) return;
+
+    const nextState = state || "idle";
+    stage.dataset.state = nextState;
+    stage.classList.remove("voice-stage-state-idle", "voice-stage-state-listening", "voice-stage-state-speaking", "voice-stage-state-error", "voice-stage-state-text-only");
+    stage.classList.add(`voice-stage-state-${nextState}`);
+
+    const statusMap = {
+        idle: "Ready to listen",
+        listening: "Listening now",
+        speaking: "Speaking back",
+        error: "Voice error",
+        "text-only mode": "Text-only mode"
+    };
+
+    if (status) {
+        status.textContent = statusMap[nextState] || nextState;
+    }
+
+    if (transcriptEl && typeof transcript === "string" && transcript.trim()) {
+        transcriptEl.textContent = transcript.trim();
+    }
+
+    if (subtitle) {
+        subtitle.textContent = nextState === "listening"
+            ? "I’m listening. Speak naturally and I’ll answer back."
+            : nextState === "speaking"
+                ? "Rugu is responding with a live spoken reply."
+                : nextState === "error"
+                    ? "Something interrupted the voice session. Try again."
+                    : "Tap the microphone and start speaking. Rugu will listen, think, and answer back like a live assistant.";
+    }
+}
+
+function setChatVoiceStatus(text) {
+    const status = document.getElementById("chatVoiceStatus");
+    if (status) {
+        const t = LANGUAGE_DICTIONARY[getCurrentLanguage()] || LANGUAGE_DICTIONARY.en;
+        const statusMap = {
+            idle: t.voiceIdle,
+            listening: t.voiceListening,
+            speaking: t.voiceSpeaking,
+            error: t.voiceError,
+            "text-only mode": t.voiceTextOnly,
+            "speech recognition not supported": t.voiceTextOnly
+        };
+        status.textContent = statusMap[text] || `${t.voicePrefix} ${text}`;
+    }
+
+    updateVoiceCopilotStage(text, geminiVoiceState.lastTranscript || "");
+}
+
+function pushChatMessage(role, text) {
+    const chatMessages = document.getElementById("chatMessages");
+    if (!chatMessages) return;
+    const bubble = document.createElement("div");
+    bubble.className = `message ${role === "user" ? "user" : "ai"}`;
+    bubble.textContent = text;
+    chatMessages.appendChild(bubble);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function setTypingIndicator(visible) {
+    const indicator = document.getElementById("typingIndicator");
+    if (indicator) {
+        indicator.style.display = visible ? "flex" : "none";
+    }
+}
+
+function getDiagnosisContext() {
+    const resultEl = document.getElementById("result");
+    const text = resultEl ? resultEl.textContent || "" : "";
+    const diseaseMatch = text.match(/Disease\s*:\s*([^\n]+)/i);
+    const solutionMatch = text.match(/Solution\s*:\s*([^\n]+)/i);
+    return {
+        disease: diseaseMatch ? diseaseMatch[1].trim() : "",
+        solution: solutionMatch ? solutionMatch[1].trim() : ""
+    };
+}
+
+function getChatLocationContext() {
+    if (!navigator.geolocation) {
+        return Promise.resolve({ lat: null, lon: null });
+    }
+
+    return new Promise(function (resolve) {
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+            },
+            function () {
+                resolve({ lat: null, lon: null });
+            },
+            getHighAccuracyGeoOptions()
+        );
+    });
+}
+
+function speakGeminiResponse(text) {
+    if (!text || !window.speechSynthesis) return;
+
+    try {
+        window.speechSynthesis.cancel();
+    } catch (error) {
+        // Ignore cancel errors in restricted browsers.
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1;
+    utterance.pitch = 1;
+
+    const voices = speechSynthesis.getVoices();
+    const preferred =
+        voices.find(function (v) { return v.lang === "en-IN"; }) ||
+        voices.find(function (v) { return String(v.lang || "").startsWith("en"); }) ||
+        voices[0];
+
+    if (preferred) {
+        utterance.voice = preferred;
+        utterance.lang = preferred.lang;
+    } else {
+        utterance.lang = "en-IN";
+    }
+
+    geminiVoiceState.speaking = true;
+    setChatVoiceStatus("speaking");
+    updateVoiceCopilotStage("speaking", text);
+
+    utterance.onend = function () {
+        geminiVoiceState.speaking = false;
+        if (geminiVoiceState.stayInConversation && !geminiVoiceState.waitingReply) {
+            setChatVoiceStatus("listening");
+            startGeminiRecognition();
+        } else {
+            setChatVoiceStatus("idle");
+            updateVoiceCopilotStage("idle", geminiVoiceState.lastTranscript || text);
+        }
+    };
+
+    utterance.onerror = function () {
+        geminiVoiceState.speaking = false;
+        setChatVoiceStatus("idle");
+        updateVoiceCopilotStage("error", text);
+    };
+
+    speechSynthesis.speak(utterance);
+}
+
+async function askGemini(messageText, fromVoice) {
+    const question = String(messageText || "").trim();
+    if (!question) return;
+
+    pushChatMessage("user", question);
+    setTypingIndicator(true);
+    geminiVoiceState.waitingReply = true;
+
+    try {
+        const location = await getChatLocationContext();
+        const diagnosis = getDiagnosisContext();
+        const payload = {
+            lat: location.lat,
+            lon: location.lon,
+            disease: diagnosis.disease,
+            solution: diagnosis.solution,
+            pageContext: getPageFeatureContext()
+        };
+
+        const data = fromVoice
+            ? await handleVoiceAgentRequest("general", question, {
+                location: location,
+                pageContext: payload.pageContext,
+                language: getSelectedAlertLanguage()
+            })
+            : await (async function () {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        message: question,
+                        context: payload
+                    })
+                });
+                return response.json();
+            })();
+
+        const reply = fromVoice
+            ? String((data && (data.text || data.voice)) || "I could not generate a response. Please try again.")
+            : String(data && data.reply ? data.reply : "I could not generate a response. Please try again.");
+        pushChatMessage("ai", reply);
+
+        if (fromVoice || geminiVoiceState.stayInConversation) {
+            speakGeminiResponse(reply);
+        }
+    } catch (error) {
+        pushChatMessage("ai", "I could not reach Gemini right now. Please try again.");
+        setChatVoiceStatus("error");
+    } finally {
+        setTypingIndicator(false);
+        geminiVoiceState.waitingReply = false;
+        if (geminiVoiceState.stayInConversation && !geminiVoiceState.speaking) {
+            startGeminiRecognition();
+        }
+    }
+}
+
+function stopGeminiRecognition() {
+    if (geminiVoiceState.recognition && geminiVoiceState.listening) {
+        geminiVoiceState.listening = false;
+        geminiVoiceState.recognition.stop();
+    }
+}
+
+function startGeminiRecognition() {
+    if (!geminiVoiceState.supportsRecognition || !geminiVoiceState.recognition) {
+        setChatVoiceStatus("speech recognition not supported");
+        return;
+    }
+
+    if (geminiVoiceState.waitingReply || geminiVoiceState.speaking) {
+        return;
+    }
+
+    if (geminiVoiceState.listening) {
+        return;
+    }
+
+    try {
+        geminiVoiceState.lastTranscript = "";
+        geminiVoiceState.listening = true;
+        geminiVoiceState.recognition.start();
+        setChatVoiceStatus("listening");
+    } catch (error) {
+        geminiVoiceState.listening = false;
+    }
+}
+
+function toggleGeminiVoiceConversation() {
+    const voiceBtn = document.getElementById("voiceChat");
+    if (!voiceBtn) return;
+
+    if (!geminiVoiceState.supportsRecognition) {
+        pushChatMessage("ai", "Voice input is not supported in this browser. You can still chat with text.");
+        return;
+    }
+
+    geminiVoiceState.stayInConversation = !geminiVoiceState.stayInConversation;
+    if (geminiVoiceState.stayInConversation) {
+        voiceBtn.classList.add("listening");
+        voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+        setVoiceCopilotStage(true);
+        updateVoiceCopilotStage("listening", geminiVoiceState.lastTranscript || "Ready to listen");
+        startGeminiRecognition();
+    } else {
+        stopGeminiRecognition();
+        voiceBtn.classList.remove("listening");
+        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        setChatVoiceStatus("idle");
+        setVoiceCopilotStage(false);
+    }
+}
+
+function toggleGeminiChatbox() {
+    const box = document.getElementById("chatbotBox");
+    if (!box) return;
+    box.classList.toggle("open");
+}
+
+function setupGeminiVoiceRecognition() {
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Recognition) {
+        geminiVoiceState.supportsRecognition = false;
+        return;
+    }
+
+    geminiVoiceState.supportsRecognition = true;
+    geminiVoiceState.recognition = new Recognition();
+    geminiVoiceState.recognition.lang = "en-IN";
+    geminiVoiceState.recognition.interimResults = false;
+    geminiVoiceState.recognition.maxAlternatives = 1;
+    geminiVoiceState.recognition.continuous = true;
+
+    geminiVoiceState.recognition.onresult = function (event) {
+        const transcript = event && event.results && event.results[0] && event.results[0][0]
+            ? String(event.results[0][0].transcript || "").trim()
+            : "";
+        geminiVoiceState.lastTranscript = transcript;
+        geminiVoiceState.listening = false;
+        if (transcript) {
+            updateVoiceCopilotStage("speaking", transcript);
+            askGemini(transcript, true);
+        } else if (geminiVoiceState.stayInConversation) {
+            setChatVoiceStatus("listening");
+            startGeminiRecognition();
+        }
+    };
+
+    geminiVoiceState.recognition.onend = function () {
+        geminiVoiceState.listening = false;
+        if (
+            geminiVoiceState.stayInConversation &&
+            !geminiVoiceState.waitingReply &&
+            !geminiVoiceState.speaking
+        ) {
+            startGeminiRecognition();
+        } else if (!geminiVoiceState.stayInConversation) {
+            setVoiceCopilotStage(false);
+        }
+    };
+
+    geminiVoiceState.recognition.onerror = function () {
+        geminiVoiceState.listening = false;
+        if (geminiVoiceState.stayInConversation && !geminiVoiceState.waitingReply) {
+            setTimeout(startGeminiRecognition, 600);
+        } else {
+            updateVoiceCopilotStage("error", geminiVoiceState.lastTranscript || "Voice recognition interrupted");
+        }
+    };
+}
+
+function initGeminiAssistant() {
+    const toggle = document.getElementById("chatbotToggle");
+    const close = document.getElementById("chatClose");
+    const send = document.getElementById("sendChat");
+    const input = document.getElementById("chatInput");
+    const voice = document.getElementById("voiceChat");
+    const voiceStageClose = document.getElementById("voiceCopilotClose");
+    const voiceStagePause = document.getElementById("voiceCopilotPauseBtn");
+    const voiceStageOpenChat = document.getElementById("voiceCopilotOpenChatBtn");
+
+    if (!toggle || !close || !send || !input || !voice) {
+        return;
+    }
+
+    setupGeminiVoiceRecognition();
+
+    toggle.addEventListener("click", toggleGeminiChatbox);
+    close.addEventListener("click", function () {
+        const box = document.getElementById("chatbotBox");
+        if (box) box.classList.remove("open");
+    });
+
+    send.addEventListener("click", function () {
+        const value = input.value;
+        input.value = "";
+        askGemini(value, false);
+    });
+
+    input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            const value = input.value;
+            input.value = "";
+            askGemini(value, false);
+        }
+    });
+
+    voice.addEventListener("click", toggleGeminiVoiceConversation);
+
+    if (voiceStageClose) {
+        voiceStageClose.addEventListener("click", function () {
+            if (geminiVoiceState.stayInConversation) {
+                toggleGeminiVoiceConversation();
+            } else {
+                setVoiceCopilotStage(false);
+            }
+        });
+    }
+
+    if (voiceStagePause) {
+        voiceStagePause.addEventListener("click", function () {
+            if (geminiVoiceState.stayInConversation) {
+                toggleGeminiVoiceConversation();
+            }
+        });
+    }
+
+    if (voiceStageOpenChat) {
+        voiceStageOpenChat.addEventListener("click", function () {
+            const box = document.getElementById("chatbotBox");
+            if (box) box.classList.add("open");
+        });
+    }
+
+    setChatVoiceStatus(geminiVoiceState.supportsRecognition ? "idle" : "text-only mode");
+    updateVoiceCopilotStage(geminiVoiceState.supportsRecognition ? "idle" : "text-only mode", "Say something like: What is the weather today?");
+}
+
+const LANGUAGE_STORAGE_KEY = "rural-guards-language";
+const LANGUAGE_DICTIONARY = {
+    en: {
+        splashSubtitle: "Real-time disease detection, weather alerts, dam safety monitoring, and government schemes-all in one place.",
+        splashGetStarted: "Get Started",
+        splashFeatureDisease: "AI Disease Detection",
+        splashFeatureWeather: "Real-time Weather",
+        splashFeatureDam: "Dam Monitoring",
+        splashFeatureSchemes: "Gov Schemes",
+        navTools: "Tools",
+        navWeather: "Weather",
+        navSafety: "Safety",
+        navGetStarted: "Get started",
+        themeLabelLight: "Light theme",
+        themeLabelDark: "Dark theme",
+        heroLead: "From disease detection to weather alerts and dam safety — one place for farmers and fishermen.",
+        heroExploreTools: "Explore tools",
+        heroCheckWeather: "Check weather",
+        sectionHeading: "What can Rural Guards do for you?",
+        sectionLead: "From field to coast — simple tools that run in your browser.",
+        cardDiseaseTitle: "Disease Detection",
+        cardDiseaseDesc: "Upload a crop image to scan for diseases and get treatment advice.",
+        scanCropBtn: "Scan Crop",
+        cardAdvisoryTitle: "Smart Advisory",
+        cardAdvisoryDesc: "Get personalized farming advice based on weather and conditions.",
+        getAdviceBtn: "Get Advice",
+        cardSellersTitle: "Nearby Sellers",
+        cardSellersDesc: "Find seed, fertilizer, and fish sellers near your current location.",
+        nearbySellerLoading: "Loading nearby seller numbers from the map...",
+        refreshSellersBtn: "Refresh sellers",
+        cardWeatherTitle: "Weather Alert",
+        cardWeatherDesc: "Uses your current location when you allow it in the browser; otherwise shows weather for Andhra Pradesh (default).",
+        checkWeatherTipsBtn: "Check Weather & Tips",
+        cardMapTitle: "Nearby Dealers Map",
+        cardMapDesc: "Find nearby seed, fertilizer, and fish dealers around your current location.",
+        mapFullscreenBtn: "Full screen",
+        mapDirectionsBtn: "Directions",
+        mapStartTrackingBtn: "Start tracking",
+        mapStopTrackingBtn: "Stop tracking",
+        dealersRouteHint: "Tap a dealer marker for directions or route tracking.",
+        dealersMapLocating: "Locating nearby dealers...",
+        routeLiveLocationUpdated: "Live location updated. Tap a seller to start route tracking.",
+        routeGeoFallback: "Geolocation is not available. Showing fallback nearby sellers.",
+        routeUsingFallback: "Using fallback location to show nearby sellers.",
+        routeFullscreenExit: "Exited fullscreen map view.",
+        routeFullscreenEnabled: "Fullscreen map view enabled.",
+        routeNoNearbyDealer: "No nearby dealer found for directions.",
+        routeGeoUnavailable: "Geolocation is not available for route tracking.",
+        routeNoDealerToTrack: "No dealer available to track.",
+        chatToggle: "Rugu Assistant",
+        chatTooltip: "Talk with Rugu using text or voice",
+        chatHeader: "Rugu",
+        chatWelcome: "Hi, I am Rugu. Ask me about weather, disease, dam alerts, schemes, or nearby dealers.",
+        chatInputPlaceholder: "Ask Rugu...",
+        voicePrefix: "Voice:",
+        voiceIdle: "Voice: idle",
+        voiceListening: "Voice: listening",
+        voiceSpeaking: "Voice: speaking",
+        voiceError: "Voice: error",
+        voiceTextOnly: "Voice: text-only mode"
+    },
+    te: {
+        splashSubtitle: "రియల్-టైమ్ వ్యాధి గుర్తింపు, వాతావరణ హెచ్చరికలు, ఆనకట్ట భద్రత మరియు ప్రభుత్వ పథకాలు-అన్నీ ఒకే చోట.",
+        splashGetStarted: "ప్రారంభించండి",
+        splashFeatureDisease: "AI వ్యాధి గుర్తింపు",
+        splashFeatureWeather: "రియల్-టైమ్ వాతావరణం",
+        splashFeatureDam: "ఆనకట్ట మానిటరింగ్",
+        splashFeatureSchemes: "ప్రభుత్వ పథకాలు",
+        navTools: "సాధనాలు",
+        navWeather: "వాతావరణం",
+        navSafety: "భద్రత",
+        navGetStarted: "ప్రారంభించండి",
+        themeLabelLight: "లైట్ థీమ్",
+        themeLabelDark: "డార్క్ థీమ్",
+        heroLead: "వ్యాధి గుర్తింపు నుండి వాతావరణ హెచ్చరికలు మరియు ఆనకట్ట భద్రత వరకు — రైతులు, మత్స్యకారుల కోసం ఒకే వేదిక.",
+        heroExploreTools: "సాధనాలు చూడండి",
+        heroCheckWeather: "వాతావరణం చూడండి",
+        sectionHeading: "Rural Guards మీ కోసం ఏమి చేయగలదు?",
+        sectionLead: "పొలం నుండి తీరానికి వరకు - మీ బ్రౌజర్‌లోనే సులభమైన సాధనాలు.",
+        cardDiseaseTitle: "వ్యాధి గుర్తింపు",
+        cardDiseaseDesc: "పంట ఫోటో అప్లోడ్ చేసి వ్యాధి గుర్తించి చికిత్స సలహాలు పొందండి.",
+        scanCropBtn: "పంట స్కాన్ చేయండి",
+        cardAdvisoryTitle: "స్మార్ట్ సలహా",
+        cardAdvisoryDesc: "వాతావరణ పరిస్థితుల ఆధారంగా వ్యక్తిగతీకరించిన సలహా పొందండి.",
+        getAdviceBtn: "సలహా పొందండి",
+        cardSellersTitle: "సమీప విక్రేతలు",
+        cardSellersDesc: "మీ ప్రస్తుత స్థానం దగ్గర విత్తన, ఎరువు, చేపల విక్రేతలను కనుగొనండి.",
+        nearbySellerLoading: "మ్యాప్ నుండి సమీప విక్రేత నంబర్లు లోడ్ అవుతున్నాయి...",
+        refreshSellersBtn: "విక్రేతలను రిఫ్రెష్ చేయండి",
+        cardWeatherTitle: "వాతావరణ హెచ్చరిక",
+        cardWeatherDesc: "బ్రౌజర్‌లో అనుమతి ఇస్తే మీ స్థానం ఆధారంగా; లేదంటే ఆంధ్రప్రదేశ్ డిఫాల్ట్ వాతావరణం చూపిస్తుంది.",
+        checkWeatherTipsBtn: "వాతావరణం & చిట్కాలు",
+        cardMapTitle: "సమీప డీలర్ల మ్యాప్",
+        cardMapDesc: "మీ ప్రస్తుత స్థానం చుట్టూ సమీప విత్తన, ఎరువు, చేపల డీలర్లను కనుగొనండి.",
+        mapFullscreenBtn: "పూర్తి స్క్రీన్",
+        mapDirectionsBtn: "దిశలు",
+        mapStartTrackingBtn: "ట్రాకింగ్ ప్రారంభించు",
+        mapStopTrackingBtn: "ట్రాకింగ్ ఆపు",
+        dealersRouteHint: "దిశలు లేదా రూట్ ట్రాకింగ్ కోసం డీలర్ మార్కర్‌ను టాప్ చేయండి.",
+        dealersMapLocating: "సమీప డీలర్లు గుర్తిస్తున్నారు...",
+        routeLiveLocationUpdated: "లైవ్ స్థానం నవీకరించబడింది. రూట్ ట్రాకింగ్ ప్రారంభించడానికి విక్రేతను టాప్ చేయండి.",
+        routeGeoFallback: "జియోలొకేషన్ అందుబాటులో లేదు. ఫాల్‌బ్యాక్ సమీప విక్రేతలు చూపిస్తున్నాం.",
+        routeUsingFallback: "సమీప విక్రేతలను చూపించడానికి ఫాల్‌బ్యాక్ స్థానం ఉపయోగిస్తున్నాం.",
+        routeFullscreenExit: "పూర్తి స్క్రీన్ మ్యాప్ నుండి బయటకు వచ్చారు.",
+        routeFullscreenEnabled: "పూర్తి స్క్రీన్ మ్యాప్ ప్రారంభించబడింది.",
+        routeNoNearbyDealer: "దిశల కోసం సమీప డీలర్ కనబడలేదు.",
+        routeGeoUnavailable: "రూట్ ట్రాకింగ్ కోసం జియోలొకేషన్ అందుబాటులో లేదు.",
+        routeNoDealerToTrack: "ట్రాక్ చేయడానికి డీలర్ అందుబాటులో లేదు.",
+        chatToggle: "రుగు అసిస్టెంట్",
+        chatTooltip: "రుగు తో టెక్స్ట్ లేదా వాయిస్ లో మాట్లాడండి",
+        chatHeader: "రుగు",
+        chatWelcome: "హాయ్, నేను రుగు. వాతావరణం, పంట వ్యాధి, ఆనకట్ట హెచ్చరికలు, పథకాలు లేదా సమీప విక్రేతల గురించి అడగండి.",
+        chatInputPlaceholder: "రుగుని అడగండి...",
+        voicePrefix: "వాయిస్:",
+        voiceIdle: "వాయిస్: సిద్ధంగా ఉంది",
+        voiceListening: "వాయిస్: వింటోంది",
+        voiceSpeaking: "వాయిస్: మాట్లాడుతోంది",
+        voiceError: "వాయిస్: లోపం",
+        voiceTextOnly: "వాయిస్: టెక్స్ట్ మోడ్ మాత్రమే"
+    },
+    hi: {
+        splashSubtitle: "रियल-टाइम रोग पहचान, मौसम अलर्ट, बांध सुरक्षा मॉनिटरिंग और सरकारी योजनाएं-एक ही जगह।",
+        splashGetStarted: "शुरू करें",
+        splashFeatureDisease: "AI रोग पहचान",
+        splashFeatureWeather: "रियल-टाइम मौसम",
+        splashFeatureDam: "बांध मॉनिटरिंग",
+        splashFeatureSchemes: "सरकारी योजनाएं",
+        navTools: "टूल्स",
+        navWeather: "मौसम",
+        navSafety: "सुरक्षा",
+        navGetStarted: "शुरू करें",
+        themeLabelLight: "लाइट थीम",
+        themeLabelDark: "डार्क थीम",
+        heroLead: "रोग पहचान से लेकर मौसम अलर्ट और बांध सुरक्षा तक — किसानों और मछुआरों के लिए एक ही जगह।",
+        heroExploreTools: "टूल्स देखें",
+        heroCheckWeather: "मौसम देखें",
+        sectionHeading: "Rural Guards आपके लिए क्या कर सकता है?",
+        sectionLead: "खेत से तट तक - आसान टूल्स जो आपके ब्राउज़र में चलते हैं।",
+        cardDiseaseTitle: "रोग पहचान",
+        cardDiseaseDesc: "फसल की तस्वीर अपलोड करें और रोग पहचान के साथ उपचार सलाह पाएं।",
+        scanCropBtn: "फसल स्कैन करें",
+        cardAdvisoryTitle: "स्मार्ट सलाह",
+        cardAdvisoryDesc: "मौसम और परिस्थितियों के आधार पर व्यक्तिगत खेती सलाह प्राप्त करें।",
+        getAdviceBtn: "सलाह लें",
+        cardSellersTitle: "नजदीकी विक्रेता",
+        cardSellersDesc: "अपने आसपास बीज, उर्वरक और मछली विक्रेताओं को खोजें।",
+        nearbySellerLoading: "मैप से नजदीकी विक्रेता नंबर लोड हो रहे हैं...",
+        refreshSellersBtn: "विक्रेताओं को रिफ्रेश करें",
+        cardWeatherTitle: "मौसम अलर्ट",
+        cardWeatherDesc: "ब्राउज़र अनुमति मिलने पर आपकी लोकेशन का मौसम; अन्यथा आंध्र प्रदेश का डिफॉल्ट मौसम दिखेगा।",
+        checkWeatherTipsBtn: "मौसम और टिप्स देखें",
+        cardMapTitle: "नजदीकी डीलर मैप",
+        cardMapDesc: "अपनी लोकेशन के आसपास बीज, उर्वरक और मछली डीलर्स खोजें।",
+        mapFullscreenBtn: "फुल स्क्रीन",
+        mapDirectionsBtn: "दिशाएं",
+        mapStartTrackingBtn: "ट्रैकिंग शुरू करें",
+        mapStopTrackingBtn: "ट्रैकिंग रोकें",
+        dealersRouteHint: "दिशाओं या रूट ट्रैकिंग के लिए डीलर मार्कर पर टैप करें।",
+        dealersMapLocating: "नजदीकी डीलर्स खोजे जा रहे हैं...",
+        routeLiveLocationUpdated: "लाइव लोकेशन अपडेट हुई। रूट ट्रैकिंग शुरू करने के लिए विक्रेता पर टैप करें।",
+        routeGeoFallback: "जियोलोकेशन उपलब्ध नहीं है। फॉलबैक नजदीकी विक्रेता दिखाए जा रहे हैं।",
+        routeUsingFallback: "नजदीकी विक्रेताओं के लिए फॉलबैक लोकेशन इस्तेमाल की जा रही है।",
+        routeFullscreenExit: "फुल स्क्रीन मैप बंद किया गया।",
+        routeFullscreenEnabled: "फुल स्क्रीन मैप चालू किया गया।",
+        routeNoNearbyDealer: "दिशाओं के लिए कोई नजदीकी डीलर नहीं मिला।",
+        routeGeoUnavailable: "रूट ट्रैकिंग के लिए जियोलोकेशन उपलब्ध नहीं है।",
+        routeNoDealerToTrack: "ट्रैक करने के लिए कोई डीलर उपलब्ध नहीं है।",
+        chatToggle: "रुगु असिस्टेंट",
+        chatTooltip: "रुगु से टेक्स्ट या वॉइस में बात करें",
+        chatHeader: "रुगु",
+        chatWelcome: "नमस्ते, मैं रुगु हूं। मौसम, फसल रोग, बांध अलर्ट, योजनाओं या नजदीकी डीलर्स के बारे में पूछें।",
+        chatInputPlaceholder: "रुगु से पूछें...",
+        voicePrefix: "वॉइस:",
+        voiceIdle: "वॉइस: तैयार",
+        voiceListening: "वॉइस: सुन रहा है",
+        voiceSpeaking: "वॉइस: बोल रहा है",
+        voiceError: "वॉइस: त्रुटि",
+        voiceTextOnly: "वॉइस: केवल टेक्स्ट मोड"
+    }
+};
+
+function getCurrentLanguage() {
+    const current = document.documentElement.dataset.lang || "en";
+    return LANGUAGE_DICTIONARY[current] ? current : "en";
+}
+
+function applyLanguage(lang) {
+    const nextLang = LANGUAGE_DICTIONARY[lang] ? lang : "en";
+    const t = LANGUAGE_DICTIONARY[nextLang];
+
+    document.documentElement.dataset.lang = nextLang;
+    document.documentElement.lang = nextLang;
+
+    document.querySelectorAll("[data-i18n]").forEach(function (element) {
+        const key = element.getAttribute("data-i18n");
+        if (key && t[key]) {
+            element.textContent = t[key];
+        }
+    });
+
+    const toggleLabel = document.getElementById("assistantToggleLabel");
+    if (toggleLabel) toggleLabel.textContent = t.chatToggle;
+
+    const chatTooltip = document.getElementById("chatTooltip");
+    if (chatTooltip) chatTooltip.textContent = t.chatTooltip;
+
+    const chatHeaderTitle = document.getElementById("chatHeaderTitle");
+    if (chatHeaderTitle) chatHeaderTitle.innerHTML = '<i class="fas fa-robot"></i> ' + t.chatHeader;
+
+    const chatWelcome = document.getElementById("chatWelcomeMessage");
+    if (chatWelcome) chatWelcome.textContent = t.chatWelcome;
+
+    const chatInput = document.getElementById("chatInput");
+    if (chatInput) chatInput.placeholder = t.chatInputPlaceholder;
+
+    const voiceStatus = document.getElementById("chatVoiceStatus");
+    if (voiceStatus) {
+        setChatVoiceStatus("idle");
+    }
+
+    const themeLabel = document.querySelector("#themeToggle span");
+    if (themeLabel) {
+        const isLight = document.documentElement.dataset.theme === "light";
+        themeLabel.textContent = isLight ? t.themeLabelDark : t.themeLabelLight;
+    }
+
+    const select = document.getElementById("languageSelect");
+    if (select) select.value = nextLang;
+
+    try {
+        localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLang);
+    } catch (error) {
+        // Ignore storage restrictions.
+    }
+}
+
+function initLanguageSelector() {
+    const select = document.getElementById("languageSelect");
+    if (!select) return;
+
+    select.addEventListener("change", function () {
+        applyLanguage(select.value);
+    });
+
+    let initial = "en";
+    try {
+        const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+        if (stored && LANGUAGE_DICTIONARY[stored]) {
+            initial = stored;
+        } else {
+            const browser = String(navigator.language || "en").slice(0, 2).toLowerCase();
+            if (LANGUAGE_DICTIONARY[browser]) {
+                initial = browser;
+            }
+        }
+    } catch (error) {
+        // Ignore storage restrictions.
+    }
+
+    applyLanguage(initial);
+}
+
+speechSynthesis.onvoiceschanged = populateVoiceOptions;
+window.addEventListener('DOMContentLoaded', populateVoiceOptions);
+window.addEventListener('DOMContentLoaded', applyDefaultPhonePrefix);
+window.addEventListener('DOMContentLoaded', initPhoneList);
+window.addEventListener('DOMContentLoaded', initOfficialAccess);
+window.addEventListener('DOMContentLoaded', initGeminiAssistant);
+window.addEventListener('DOMContentLoaded', initLanguageSelector);
+
+async function damAlert() {
+    if (!ensureOfficialAccess()) return;
+
+    const phones = getAlertPhoneNumbers();
+    const location = (document.getElementById("damLocation").value || "the dam").trim() || "the dam";
+    const language = getSelectedAlertLanguage();
+
+    if (!phones.length) {
+        setDamStatus("Please enter at least one phone number to send dam call + SMS alert.", false);
+        return;
+    }
+
+    setDamStatus(`🚨 Sending dam alert to ${phones.length} recipient(s)...`, true);
+
+    const results = await Promise.all(
+        phones.map(async function (phone) {
+            try {
+                const response = await fetch('/send-alert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        phone,
+                        type: 'dam',
+                        language,
+                        damName: location
+                    })
+                });
+                const data = await response.json();
+                return {
+                    ok: response.ok && data && data.success,
+                    phone: phone,
+                    error: data && data.error ? data.error : null
+                };
+            } catch (error) {
+                return { ok: false, phone: phone, error: error.message };
+            }
+        })
+    );
+
+    const successCount = results.filter(function (r) { return r.ok; }).length;
+    const failed = results.filter(function (r) { return !r.ok; });
+
+    if (!failed.length) {
+        setDamStatus(`✅ Dam alert sent to all ${successCount} recipients.`, true);
+    } else {
+        const failedPhones = failed.map(function (r) { return r.phone; }).join(", ");
+        setDamStatus(`⚠️ Alerts sent to ${successCount}/${phones.length}. Failed: ${failedPhones}`, false);
+    }
+
+    const select = document.getElementById('voiceSelect');
+    const voices = speechSynthesis.getVoices();
+    let voice = null;
+
+    if (select.value === 'google-telugu') {
+        // Force Google TTS for Telugu
+        playTeluguWithGoogle(`${location} వ�్డ డ్యామ్ నీరు విడుదల అవుతున్నది. దయచేసి త్వరగా భద్రత స్థలానికి తరలించండి.`, location);
+        return;
+    }
+
+    if (select.value) {
+        voice = voices.find(v => v.name === select.value);
+    }
+
+    if (!voice) {
+        voice = voices.find(v => v.lang === 'te-IN' || v.lang.startsWith('te')) ||
+                voices.find(v => v.lang === 'hi-IN') ||
+                voices.find(v => v.lang === 'en-IN') ||
+                voices.find(v => v.lang.startsWith('en'));
+    }
+
+    // If auto-detect and no Telugu voice found, use Google TTS
+    if (!select.value && !voice) {
+        playTeluguWithGoogle(`${location} వ�్డ డ్యామ్ నీరు విడుదల అవుతున్నది. దయచేసి త్వరగా భద్రత స్థలానికి తరలించండి.`, location);
+        return;
+    }
+
+    // Generate alert text based on selected voice language
+    let alertText = '';
+    let subtitleText = '';
+    let langCode = voice ? voice.lang : 'en-US';
+
+    if (langCode.startsWith('te')) {
+        // Telugu
+        alertText = `${location} వ�్డ డ్యామ్ నీరు విడుదల అవుతున్నది. దయచేసి త్వరగా భద్రత స్థలానికి తరలించండి.`;
+        subtitleText = `డ్యామ్ అలర్ట్: ${location} వద్ద నీరు విడుదల అవుతుంది.`;
+    } else if (langCode.startsWith('hi')) {
+        // Hindi
+        alertText = `${location} बांध में पानी छोड़ा जा रहा है। कृपया तुरंत सुरक्षित स्थान पर चले जाएं।`;
+        subtitleText = `बांध अलर्ट: ${location} पर पानी रिलीज हो रहा है।`;
+    } else if (langCode.startsWith('ta')) {
+        // Tamil
+        alertText = `${location} அணையில் தண்ணீர் விட்டிருக்கிறது. தயவுசெய்து உடனடியாக பாதுகாப்படிடுங்கள்.`;
+        subtitleText = `அணைக்경고: ${location} பாறிக் மையில் தண்ணீர் வெளியிடப்பட்டுள்ளது.`;
+    } else if (langCode.startsWith('kn')) {
+        // Kannada
+        alertText = `${location} ಅಣೆಯಲ್ಲಿ ನೀರು ಬಿಡಲಾಗುತ್ತಿದೆ. ದಯವಿಟ್ಟು ತಕ್ಷಣವೇ ಸುರಕ್ಷಿತ ಸ್ಥಳಕ್ಕೆ ಸರಿಸಿ.`;
+        subtitleText = `ಅಣೆ ಎಚ್ಚರಿಕೆ: ${location} ನಲ್ಲಿ ನೀರು ಬಿಡಲಾಗುತ್ತಿದೆ.`;
+    } else if (langCode.startsWith('ml')) {
+        // Malayalam
+        alertText = `${location} അണനിലെ വെള്ളം വിടിക്കുന്നുണ്ട്. ദയവായി ഉടനെ സുരക്ഷിത സ്ഥലത്തേക്ക് പോകുക.`;
+        subtitleText = `അണ അലേർട്ട് : ${location} ൽ നീര് വിടുകയാണ് .`;
+    } else {
+        // Default English
+        alertText = `Attention everyone: ${location} dam is releasing water now. Please move to safety immediately.`;
+        subtitleText = `Dam Alert: ${location} is releasing water now.`;
+    }
+
+    // Check if Telugu was requested (either selected or auto-detect with no Telugu voice)
+    const teluguRequested = select.value === 'google-telugu' || (!select.value && !voice) || (voice && voice.lang.startsWith('te'));
+    const teluguVoiceAvailable = voice && voice.lang.startsWith('te');
+
+    if (teluguRequested) {
+        if (teluguVoiceAvailable) {
+            // Use native Telugu voice
+            let msg = new SpeechSynthesisUtterance(`${location} వ�్డ డ్యామ్ నీరు విడుదల అవుతున్నది. దయచేసి త్వరగా భద్రత స్థలానికి తరలించండి.`);
+            msg.rate = 0.95;
+            msg.pitch = 1.05;
+            msg.voice = voice;
+            msg.lang = voice.lang;
+            setDamStatus(`Voice alert playing with: ${voice.name} (${voice.lang}).`, true);
+            speechSynthesis.speak(msg);
+        } else {
+            // Use Google TTS or Web Speech API for Telugu speech
+            playTeluguWithGoogle(`${location} వ�్డ డ్యామ్ నీరు విడుదల అవుతున్నది. దయచేసి త్వరగా భద్రత స్థలానికి తరలించండి.`, location);
+        }
+    } else {
+        // Use local voice for Hindi/English
+        let alertText = '';
+        if (voice && voice.lang.startsWith('hi')) {
+            alertText = `${location} बांध में पानी छोड़ा जा रहा है। कृपया तुरंत सुरक्षित स्थान पर चले जाएं।`;
+        } else {
+            alertText = `Attention everyone: ${location} dam is releasing water now. Please move to safety immediately.`;
+        }
+
+        let msg = new SpeechSynthesisUtterance(alertText);
+        msg.rate = 0.95;
+        msg.pitch = 1.05;
+
+        if (voice) {
+            msg.voice = voice;
+            msg.lang = voice.lang;
+            setDamStatus(`Voice alert playing with: ${voice.name} (${voice.lang}).`, true);
+        } else {
+            msg.lang = 'en-US';
+            setDamStatus('No speech voices available in browser; using default English message.', false);
+        }
+
+        speechSynthesis.speak(msg);
+    }
+}
+</script>
+
+<div id="chatbotToggle" role="button" aria-label="Open Rugu Assistant">
+    <i class="fas fa-comments"></i>
+    <span id="assistantToggleLabel">Rugu Assistant</span>
+    <div id="chatTooltip">Talk with Rugu using text or voice</div>
+</div>
+
+<div id="chatbotBox" aria-live="polite">
+    <div id="chatHeader">
+        <span id="chatHeaderTitle"><i class="fas fa-robot"></i> Rugu</span>
+        <button id="chatClose" type="button" aria-label="Close assistant">x</button>
+    </div>
+    <div id="chatMessages">
+        <div class="message ai" id="chatWelcomeMessage">Hi, I am Rugu. Ask me about weather, disease, dam alerts, schemes, or nearby dealers.</div>
+    </div>
+    <div id="typingIndicator" style="display:none;">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+    </div>
+    <div id="chatVoiceStatus">Voice: idle</div>
+    <div id="chatInputArea">
+        <input id="chatInput" type="text" placeholder="Ask Gemini..." />
+        <button id="voiceChat" type="button" aria-label="Start voice chat"><i class="fas fa-microphone"></i></button>
+        <button id="sendChat" type="button">Send</button>
+    </div>
+</div>
+
+<div id="voiceCopilotStage" aria-live="polite" hidden>
+    <div class="voice-stage-shell">
+        <div class="voice-stage-top">
+            <div class="voice-stage-kicker"><i class="fas fa-circle-nodes"></i><span>Live Voice Copilot</span></div>
+            <button type="button" class="voice-stage-close" id="voiceCopilotClose" aria-label="Close voice copilot"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="voice-stage-center">
+            <div class="voice-stage-orb" aria-hidden="true">
+                <div class="voice-orb-core"></div>
+            </div>
+            <div class="voice-waveform" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <h2 class="voice-stage-label" id="voiceCopilotTitle">Rugu Voice Copilot</h2>
+            <p class="voice-stage-subtitle" id="voiceCopilotSubtitle">Tap the microphone and start speaking. Rugu will listen, think, and answer back like a live assistant.</p>
+            <div class="voice-stage-status" id="voiceCopilotStatus">Ready to listen</div>
+            <div class="voice-stage-transcript" id="voiceCopilotTranscript">Say something like: What is the weather today? or Send a dam alert.</div>
+            <div class="voice-stage-actions">
+                <button type="button" class="btn-outline" id="voiceCopilotPauseBtn"><i class="fas fa-microphone-slash"></i> Pause</button>
+                <button type="button" class="btn-outline" id="voiceCopilotOpenChatBtn"><i class="fas fa-comments"></i> Open chat</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

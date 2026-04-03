@@ -5910,46 +5910,63 @@ async function damAlert() {
     const language = getSelectedAlertLanguage();
 
     if (!phones.length) {
-        setDamStatus("Please enter at least one phone number to send dam voice call alert.", false);
+        setDamStatus("Please enter at least one phone number to send dam call + SMS alert.", false);
         return;
     }
 
-    setDamStatus(`📞 Initiating dam voice calls to ${phones.length} recipient(s)...`, true);
+    setDamStatus(`🚨 Sending dam call + SMS alerts to ${phones.length} recipient(s)...`, true);
 
     const results = await Promise.all(
         phones.map(async function (phone) {
             try {
-                const response = await fetch('/make-call', {
+                const response = await fetch('/send-alert', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        phoneNumber: phone,
+                        phone: phone,
+                        type: 'dam',
                         damName: location,
                         language
                     })
                 });
                 const data = await response.json();
+                const callOk = Boolean(data && data.callSid);
+                const smsOk = Boolean(data && data.smsSid);
                 return {
                     ok: response.ok && data && data.success,
+                    bothOk: callOk && smsOk,
+                    callOk: callOk,
+                    smsOk: smsOk,
                     phone: phone,
-                    error: data && data.error ? data.error : null
+                    error: data && data.error ? data.error : (data && data.message ? data.message : null)
                 };
             } catch (error) {
-                return { ok: false, phone: phone, error: error.message };
+                return { ok: false, bothOk: false, callOk: false, smsOk: false, phone: phone, error: error.message };
             }
         })
     );
 
-    const successCount = results.filter(function (r) { return r.ok; }).length;
+    const bothCount = results.filter(function (r) { return r.bothOk; }).length;
+    const partial = results.filter(function (r) { return r.ok && !r.bothOk; });
     const failed = results.filter(function (r) { return !r.ok; });
 
-    if (!failed.length) {
-        setDamStatus(`✅ Voice calls initiated for all ${successCount} recipient(s).`, true);
+    if (!failed.length && !partial.length) {
+        setDamStatus(`✅ Call + SMS sent successfully to all ${bothCount} recipient(s).`, true);
     } else {
-        const failedPhones = failed.map(function (r) { return r.phone; }).join(", ");
-        setDamStatus(`⚠️ Calls initiated for ${successCount}/${phones.length}. Failed: ${failedPhones}`, false);
+        const partialPhones = partial.map(function (r) {
+            const parts = [];
+            parts.push(r.callOk ? "call ok" : "call fail");
+            parts.push(r.smsOk ? "sms ok" : "sms fail");
+            return `${r.phone} (${parts.join(", ")})`;
+        }).join("; ");
+        const failedPhones = failed.map(function (r) { return `${r.phone}${r.error ? `: ${r.error}` : ""}`; }).join("; ");
+
+        let statusText = `⚠️ Full success for ${bothCount}/${phones.length}.`;
+        if (partialPhones) statusText += ` Partial: ${partialPhones}.`;
+        if (failedPhones) statusText += ` Failed: ${failedPhones}.`;
+        setDamStatus(statusText, false);
     }
 }
 </script>

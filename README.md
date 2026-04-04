@@ -162,4 +162,4 @@ This endpoint reads agent data from ElevenLabs using your server-side key.
 - **Don’t commit secrets:** keep `.env` only on your computer; share `.env.example` without real keys.
 - **If disease scan fails:** show Weather + UI; fix Python/path errors after the pitch.
 
-Good luck with your hackathon.
+THANK YOU <3

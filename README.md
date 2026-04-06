@@ -2,6 +2,10 @@
 
 Web app for farmers in Andhra Pradesh: **crop disease scan** (AI), **live weather** + tips, contacts, and **dam alert** (voice demo).
 
+## Achievement
+
+- 🏆 **1st Place - Surjana Hackathon 2026**
+
 ## Quick run (for demo day)
 
 1. Install **Node.js** (LTS) from [nodejs.org](https://nodejs.org/).

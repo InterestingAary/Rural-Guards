@@ -228,10 +228,4 @@ This endpoint reads agent data from ElevenLabs using your server-side key.
 - Every `/voice-agent` response includes `realtime.elevenLabs`.
 - It reports whether realtime agent metadata was loaded, source (`live` or `cache`), and compact agent fields.
 
-## Hackathon tips
-
-- **Demo on one machine:** run `npm start`, use the browser on the same PC, test Weather and (if Python works) Disease scan.
-- **Don’t commit secrets:** keep `.env` only on your computer; share `.env.example` without real keys.
-- **If disease scan fails:** show Weather + UI; fix Python/path errors after the pitch.
-
 THANK YOU <3

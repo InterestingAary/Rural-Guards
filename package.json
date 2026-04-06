@@ -5,7 +5,9 @@
   "main": "backend/server.js",
   "scripts": {
     "start": "node backend/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "validate:dataset": "node ai-model/validate_dataset.js --dataset dataset --prepared ai-model/prepared_dataset --val-split 0.2 --json-out ai-model/dataset_validation_report.json",
+    "validate:live-scan": "node ai-model/live_scan_validation.js --dataset dataset --model-script ai-model/predict.py --holdout-ratio 0.2 --max-samples 120 --deduplicate true --report-out ai-model/live_scan_report.json"
   },
   "keywords": [],
   "author": "",

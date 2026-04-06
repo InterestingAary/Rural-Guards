@@ -1456,6 +1456,55 @@ input[type="file"]::-webkit-file-upload-button {
     color: #e4e4e7;
 }
 
+#weatherValidation {
+    margin-top: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface-soft);
+    color: var(--muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.validation-title {
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.35rem;
+}
+
+.validation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.45rem 0.85rem;
+}
+
+.validation-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border: 1px solid var(--border);
+    background: var(--surface-hover);
+    color: var(--text);
+}
+
+.validation-chip.ok {
+    border-color: rgba(74, 222, 128, 0.4);
+    background: rgba(74, 222, 128, 0.12);
+    color: #bbf7d0;
+}
+
+.validation-chip.warn {
+    border-color: rgba(250, 204, 21, 0.4);
+    background: rgba(250, 204, 21, 0.12);
+    color: #fef08a;
+}
+
 #result strong,
 #advice strong,
 #weather strong {
@@ -3167,6 +3216,7 @@ button.loading {
         <p class="small-note" id="sendWeatherAlertHint">Visible only for signed-in dam officials.</p>
         <button type="button" class="btn-outline" onclick="refreshLocationNow()"><i class="fas fa-location-crosshairs"></i> <span>Refresh GPS</span></button>
         <div id="weather"></div>
+        <div id="weatherValidation">Weather validation details will appear after loading weather.</div>
     </div>
 
     <!-- Nearby Dealers Map -->
@@ -3951,6 +4001,64 @@ function fetchWeatherData(lat, lon) {
     });
 }
 
+function formatMaybeNumber(value, suffix, digits) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return "N/A";
+    const fixed = typeof digits === "number" ? num.toFixed(digits) : String(num);
+    return fixed + (suffix || "");
+}
+
+function getValidationChipClass(validation) {
+    const status = String(validation && validation.status || "").toLowerCase();
+    if (status === "ok") return "validation-chip ok";
+    return "validation-chip warn";
+}
+
+function renderWeatherValidationPanel(data) {
+    const panel = document.getElementById("weatherValidation");
+    if (!panel) return;
+
+    const validation = data && data.validation;
+    if (!validation || validation.status === "disabled") {
+        panel.innerHTML = '<div class="validation-title">Weather Accuracy</div><div>Historical validation is currently disabled.</div>';
+        return;
+    }
+
+    if (!validation || validation.status !== "ok") {
+        panel.innerHTML = '<div class="validation-title">Weather Accuracy</div><div>Validation data is unavailable right now.</div>';
+        return;
+    }
+
+    const tempStats = validation.metrics && validation.metrics.temperatureC ? validation.metrics.temperatureC : {};
+    const rainStats = validation.metrics && validation.metrics.precipitationMm ? validation.metrics.precipitationMm : {};
+    const windStats = validation.metrics && validation.metrics.windSpeedMs ? validation.metrics.windSpeedMs : {};
+    const score = validation.reliabilityScore && Number(validation.reliabilityScore.temperature);
+    const corrected = data && data.corrected;
+    const chipClass = getValidationChipClass(validation);
+
+    let html = '<div class="validation-title">Weather Accuracy (5-year NASA cross-check)</div>';
+    html += '<div><span class="' + chipClass + '">Status: ' + String(validation.status).toUpperCase() + '</span>';
+    if (Number.isFinite(score)) {
+        html += ' <span class="validation-chip">Temp reliability: ' + Math.round(score) + '/100</span>';
+    }
+    html += '</div>';
+    html += '<div class="validation-grid">';
+    html += '<div>Temp MAE: <strong>' + formatMaybeNumber(tempStats.mae, '°C', 2) + '</strong></div>';
+    html += '<div>Rain MAE: <strong>' + formatMaybeNumber(rainStats.mae, ' mm', 2) + '</strong></div>';
+    html += '<div>Wind MAE: <strong>' + formatMaybeNumber(windStats.mae, ' m/s', 2) + '</strong></div>';
+    html += '<div>Temp correlation: <strong>' + formatMaybeNumber(tempStats.correlation, '', 2) + '</strong></div>';
+    html += '</div>';
+
+    if (corrected && Number.isFinite(Number(corrected.correctedTemperature))) {
+        html += '<div style="margin-top:0.5rem;">';
+        html += 'Corrected temperature: <strong>' + formatMaybeNumber(corrected.correctedTemperature, '°C', 1) + '</strong>';
+        html += ' (delta ' + formatMaybeNumber(corrected.correctionDelta, '°C', 2) + ')';
+        html += '</div>';
+    }
+
+    panel.innerHTML = html;
+}
+
 function getAdvice() {
     let adviceDiv = document.getElementById("advice");
     adviceDiv.innerHTML = '<span class="loading-text"><span class="spinner"></span> Getting smart advice...</span>';
@@ -3999,9 +4107,13 @@ function getAdvice() {
 ========================= */
 function weatherAlert() {
     let weatherDiv = document.getElementById("weather");
+    let weatherValidationDiv = document.getElementById("weatherValidation");
     weatherDiv.innerHTML = '<span class="loading-text"><span class="spinner"></span> Getting your location &amp; weather...</span>';
     weatherDiv.classList.add('loading');
     weatherDiv.classList.remove('error', 'success');
+    if (weatherValidationDiv) {
+        weatherValidationDiv.innerHTML = 'Computing 5-year weather accuracy profile...';
+    }
 
     function showWeather(data) {
         weatherDiv.classList.remove('loading');
@@ -4016,6 +4128,7 @@ function weatherAlert() {
         weatherInfo += "<strong>💡 Farming &amp; Fishing Tips:</strong><br>";
         weatherInfo += mergedTips.map(function (tip) { return "• " + tip; }).join("<br>");
         weatherDiv.innerHTML = weatherInfo;
+        renderWeatherValidationPanel(data);
     }
 
     function onError(err) {
@@ -4023,6 +4136,9 @@ function weatherAlert() {
         weatherDiv.classList.remove('loading');
         weatherDiv.classList.add('error');
         weatherDiv.innerHTML = '<span class="error-badge">⚠️</span> Weather service unavailable. Using demo data.<br><br><strong>💡 Demo Tips:</strong><br>• 🌱 Good conditions for paddy transplantation<br>• 💧 Irrigate crops in early morning<br>• 🐟 Favorable weather for coastal fishing<br>• ⚠️ Monitor for sudden weather changes';
+        if (weatherValidationDiv) {
+            weatherValidationDiv.innerHTML = 'Weather validation panel unavailable while weather service is down.';
+        }
     }
 
     if (!navigator.geolocation) {

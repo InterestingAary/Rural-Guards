@@ -34,6 +34,37 @@ Web app for farmers in Andhra Pradesh: **crop disease scan** (AI), **live weathe
 | **Nearby dealers** | No paid API key required. Uses Overpass (OpenStreetMap) + local fallback |
 | **Disease scan** | Python 3 + TensorFlow + `ai-model/model.h5` + dependencies (see `ai-model/predict.py`) |
 
+### Weather accuracy with 5-year NASA validation
+
+The weather API now validates against 5 years of NASA POWER historical daily data.
+
+- Backend compares NASA POWER vs Open-Meteo Archive for temperature, rainfall, and wind.
+- It computes MAE, RMSE, bias, and correlation.
+- It returns validation metadata and a bounded temperature correction.
+- Results are cached per location to avoid repeated heavy API calls.
+
+Optional `.env` flag:
+
+```env
+HISTORICAL_VALIDATION_ENABLED=true
+HISTORICAL_WARMUP_ENABLED=true
+```
+
+Set `HISTORICAL_VALIDATION_ENABLED=false` to disable this layer.
+Set `HISTORICAL_WARMUP_ENABLED=false` to skip startup precompute.
+
+New fields in `/weather` JSON response:
+
+- `validation` (status, period, metrics, reliability score)
+- `corrected` (bias-adjusted temperature suggestion)
+
+Validation endpoints:
+
+- `/weather/validation-history?lat=16.5&lon=80.6`
+- `/api/weather/validation-history?lat=16.5&lon=80.6`
+
+These return validation metadata + cache status for the selected location.
+
 ### Advanced model retraining (new datasets)
 
 When you add new crop disease datasets (including nested folders), retrain with:
@@ -51,6 +82,47 @@ What this upgraded trainer does:
 - Trains a stronger transfer-learning model (MobileNetV2 + fine-tuning)
 
 After training, restart backend so `/api/crop-options` reflects newly learned crop filters in UI.
+
+### Dataset validation (for model credibility)
+
+Run this before retraining to audit duplicates and train/validation leakage risk:
+
+```bash
+node ai-model/validate_dataset.js --dataset dataset --prepared ai-model/prepared_dataset --val-split 0.2 --json-out ai-model/dataset_validation_report.json
+```
+
+This writes a full report to `ai-model/dataset_validation_report.json` with:
+
+- class counts and imbalance
+- exact duplicate image groups
+- cross-class duplicate checks
+- potential train/validation leakage from duplicate hashes
+
+### Live model scan validation (jury-proof)
+
+Run this to validate the actual scanning pipeline (`predict.py`) on unseen holdout images:
+
+```bash
+npm run validate:live-scan
+```
+
+This evaluates a deterministic holdout sample and writes:
+
+- `ai-model/live_scan_report.json`
+
+Report includes:
+
+- evaluated sample count
+- top-1 accuracy on holdout images
+- average confidence
+- per-class accuracy
+- mistake examples (expected vs predicted)
+
+Tip for hackathon demo:
+
+1. Run `npm run validate:live-scan` live.
+2. Open `ai-model/live_scan_report.json`.
+3. Show that evaluation is on holdout data, not training images.
 
 ---
 

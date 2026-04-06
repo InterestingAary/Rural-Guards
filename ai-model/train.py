@@ -198,7 +198,26 @@ def prepare_training_directory(records, prepared_root, min_images_per_class, max
 
     kept = {}
     dropped = {}
+    dedup_dropped = {}
     for class_name, paths in by_class.items():
+        unique_paths = []
+        seen_hashes = set()
+        for src_path in paths:
+            try:
+                with open(src_path, "rb") as f:
+                    content_hash = hashlib.sha256(f.read()).hexdigest()
+            except Exception:
+                # If hashing fails for a file, keep it so training does not silently lose data.
+                unique_paths.append(src_path)
+                continue
+
+            if content_hash in seen_hashes:
+                dedup_dropped[class_name] = dedup_dropped.get(class_name, 0) + 1
+                continue
+            seen_hashes.add(content_hash)
+            unique_paths.append(src_path)
+
+        paths = unique_paths
         if len(paths) < min_images_per_class:
             dropped[class_name] = len(paths)
         else:
@@ -223,7 +242,7 @@ def prepare_training_directory(records, prepared_root, min_images_per_class, max
             except Exception:
                 shutil.copy2(src_path, dst_path)
 
-    return kept, dropped
+    return kept, dropped, dedup_dropped
 
 
 def build_model(num_classes, img_size):
@@ -293,7 +312,7 @@ def main():
         print(f"Applied focus crops: {sorted(focus_crops)}")
         print(f"Records after crop focus filter: {len(records)} (from {before})")
 
-    kept, dropped = prepare_training_directory(
+    kept, dropped, dedup_dropped = prepare_training_directory(
         records,
         prepared_root,
         args.min_images_per_class,
@@ -301,6 +320,8 @@ def main():
         args.seed
     )
     print(f"Prepared dataset classes: {len(kept)}")
+    if dedup_dropped:
+        print("Removed exact duplicate images:", dedup_dropped)
     if dropped:
         print("Dropped small classes:", dropped)
 

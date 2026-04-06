@@ -14,6 +14,8 @@ app.use(express.json());
 const { exec } = require("child_process");
 const {
     getWeatherPayload,
+    getWeatherValidationHistory,
+    warmHistoricalValidationCache,
     getMockWeather,
     DEFAULT_LAT,
     DEFAULT_LON
@@ -377,6 +379,42 @@ app.get("/weather", async (req, res) => {
     } catch (error) {
         console.log("Weather handler error:", error.message);
         res.json(getMockWeather());
+    }
+});
+
+app.get("/weather/validation-history", async (req, res) => {
+    const { lat, lon } = parseWeatherCoords(req.query);
+    try {
+        const payload = await getWeatherValidationHistory(lat, lon);
+        res.json(payload);
+    } catch (error) {
+        console.log("Weather validation-history handler error:", error.message);
+        res.status(503).json({
+            location: { lat, lon },
+            validation: {
+                enabled: true,
+                status: "unavailable",
+                reason: error.message
+            }
+        });
+    }
+});
+
+app.get("/api/weather/validation-history", async (req, res) => {
+    const { lat, lon } = parseWeatherCoords(req.query);
+    try {
+        const payload = await getWeatherValidationHistory(lat, lon);
+        res.json(payload);
+    } catch (error) {
+        console.log("API weather validation-history handler error:", error.message);
+        res.status(503).json({
+            location: { lat, lon },
+            validation: {
+                enabled: true,
+                status: "unavailable",
+                reason: error.message
+            }
+        });
     }
 });
 
@@ -1083,4 +1121,17 @@ app.use(express.static(frontendDir));
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running — open http://127.0.0.1:${PORT} in your browser`);
+    warmHistoricalValidationCache()
+        .then((summary) => {
+            if (!summary || summary.enabled === false) {
+                console.log("Historical weather warmup skipped (disabled)");
+                return;
+            }
+            console.log(
+                `Historical weather warmup complete: success ${summary.success}/${summary.requested}, failed ${summary.failed}`
+            );
+        })
+        .catch((error) => {
+            console.log("Historical weather warmup failed:", error.message);
+        });
 });
